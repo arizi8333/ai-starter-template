@@ -1,0 +1,21 @@
+steps:
+  - agent: planner_agent
+
+  - agent: dev_agent
+
+  - agent: qa_agent
+
+  - loop:
+      condition: qa_agent.status == "fail"
+      max_retry: 3
+      steps:
+        - agent: dev_agent
+        - agent: qa_agent
+
+  - agent: reviewer_agent
+
+  - agent: optimizer_agent
+
+  - agent: techwriter_agent
+
+  - agent: orchestrator_agent

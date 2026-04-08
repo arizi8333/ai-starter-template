@@ -1,0 +1,21 @@
+steps:
+  - agent: devops_agent
+
+  - agent: security_agent
+
+  - agent: qa_agent
+
+  - loop:
+      condition: devops_agent.status == "fail" OR security_agent.status == "fail" OR qa_agent.status == "fail"
+      max_retry: 3  # from config.yaml retry.max_attempt
+      steps:
+        - agent: devops_agent
+        - agent: security_agent
+        - agent: qa_agent
+
+  - agent: techwriter_agent
+
+  - agent: orchestrator_agent
+
+config:
+  deployment_strategy: from_config  # blue-green | canary | rolling

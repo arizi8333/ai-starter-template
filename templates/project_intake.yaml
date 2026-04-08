@@ -1,0 +1,200 @@
+# ============================================================================
+# PROJECT INTAKE TEMPLATE
+# ============================================================================
+# Isi template ini untuk mendefinisikan project baru.
+# Fokus ke BISNIS dan KEBUTUHAN — biarkan Kiro yang menentukan:
+#   - Struktur database (tabel, kolom, relasi, index)
+#   - API endpoints dan contract
+#   - Folder structure dan arsitektur
+#   - Migration files dan seed data
+#   - Infrastructure configuration
+#
+# CARA PAKAI:
+#   1. Copy: cp templates/project_intake.yaml ./project_intake.yaml
+#   2. Isi section [WAJIB] — deskripsikan bisnis dan fitur kamu
+#   3. Minta Kiro: "Baca project_intake.yaml dan setup project ini"
+# ============================================================================
+
+
+# ============================================================================
+# PROJECT INFO [WAJIB]
+# ============================================================================
+project:
+  name: ""                          # nama project (kebab-case, contoh: toko-online)
+  description: ""                   # deskripsi singkat (1-2 kalimat, apa yang dilakukan project ini)
+  domain: ""                        # domain bisnis: e-commerce | fintech | healthcare | saas | marketplace | education | social | logistics | other
+  version: "0.1.0"
+
+
+# ============================================================================
+# TECH STACK [WAJIB]
+# Pilih teknologi yang ingin dipakai. Kiro akan menyesuaikan arsitektur.
+# ============================================================================
+tech_stack:
+  backend:
+    language: go                    # go | node | python | java
+    framework: ""                   # go: gin/echo/fiber | node: express/fastify | python: fastapi
+    api_style: rest                 # rest (HTTP JSON, paling umum) | grpc (binary, cepat, antar service) | graphql (query fleksibel dari client)
+
+  frontend:
+    enabled: false                  # true jika project punya frontend
+    framework: ""                   # react | vue | nextjs | nuxtjs | none
+    language: typescript            # typescript | javascript
+
+  database:
+    primary: postgresql             # postgresql | mysql | mongodb
+    cache: redis                    # redis (in-memory cache, cepat) | memcached (cache sederhana) | none
+
+  infrastructure:
+    container: docker               # docker | podman
+    orchestration: kubernetes       # kubernetes (orkestrasi container skala besar) | docker-compose (lokal/kecil) | none
+    ci_cd: ""                       # github-actions | gitlab-ci | jenkins
+    cloud_provider: ""              # aws | gcp | azure | self-hosted
+
+
+# ============================================================================
+# CORE FEATURES [WAJIB]
+# Deskripsikan fitur bisnis secara HIGH-LEVEL.
+# TIDAK perlu definisikan endpoint, database, atau detail teknis.
+# Kiro akan menentukan semua itu berdasarkan deskripsi kamu.
+# ============================================================================
+core_features:
+
+  - name: ""                        # nama fitur (kebab-case, contoh: user-authentication)
+    description: ""                 # jelaskan APA yang fitur ini lakukan dari sisi bisnis
+    priority: high                  # high | medium | low
+    # Contoh deskripsi yang baik:
+    #   "User bisa registrasi dengan email dan password, login, logout,
+    #    dan melihat profil mereka. Admin bisa melihat daftar semua user."
+
+  - name: ""
+    description: ""
+    priority: medium
+
+  # Tambahkan fitur lain sesuai kebutuhan...
+  # - name: ""
+  #   description: ""
+  #   priority: low
+
+
+# ============================================================================
+# USER ROLES [WAJIB]
+# Siapa saja yang menggunakan sistem ini?
+# ============================================================================
+user_roles:
+  - name: admin
+    description: "Full access ke seluruh sistem"
+  - name: user
+    description: "Pengguna standar"
+  # Tambahkan role lain:
+  # - name: moderator
+  #   description: "Bisa moderasi konten"
+
+
+# ============================================================================
+# AUTHENTICATION [WAJIB jika ada fitur yang butuh login]
+# ============================================================================
+auth:
+  enabled: true                     # true | false
+  strategy: jwt                     # jwt (token stateless, cocok untuk API) | session (server-side, cocok untuk web tradisional) | oauth2 (login via provider lain)
+  social_login: false               # true jika butuh login via Google/GitHub/Facebook
+  two_factor: false                 # true jika butuh verifikasi 2 langkah (OTP/authenticator app)
+
+
+# ============================================================================
+# BUSINESS REQUIREMENTS [OPSIONAL]
+# Ekspektasi non-teknis — Kiro akan translate ke konfigurasi teknis.
+# ============================================================================
+business_requirements:
+  expected_users: ""                # perkiraan jumlah user (contoh: "1000", "100K", "1M")
+  expected_traffic: ""              # perkiraan traffic (contoh: "low", "medium", "high")
+  data_sensitivity: ""              # seberapa sensitif data (contoh: "low", "medium", "high")
+  compliance: []                    # standar keamanan data jika ada:
+                                    #   GDPR  = perlindungan data pribadi (Eropa)
+                                    #   HIPAA = data kesehatan (US)
+                                    #   PCI-DSS = data kartu kredit/pembayaran
+                                    #   SOC2  = keamanan data SaaS
+  availability: ""                  # target uptime (contoh: "99.9%", "99.99%")
+
+
+# ============================================================================
+# DEPLOYMENT [OPSIONAL — default: rolling, 3 environments]
+# ============================================================================
+deployment:
+  strategy: rolling                 # Strategi deploy versi baru ke production:
+                                    #   rolling    = ganti server satu per satu (paling aman, default)
+                                    #   blue-green = siapkan 2 environment identik, switch traffic sekaligus (zero downtime, rollback instan)
+                                    #   canary     = deploy ke sebagian kecil user dulu, monitor, baru expand ke semua (minimize risiko)
+  environments:
+    - development
+    - staging
+    - production
+
+
+# ============================================================================
+# ADDITIONAL CONTEXT [OPSIONAL]
+# Informasi tambahan yang membantu Kiro memahami project.
+# Tulis dalam bahasa natural — sebebas mungkin.
+# ============================================================================
+notes: |
+  Contoh:
+  - Data perlu di-migrate dari sistem lama (Excel/CSV)
+  - Nanti akan ada integrasi dengan sistem ERP existing
+
+
+# ============================================================================
+# PHASE PLANNING / ROADMAP [OPSIONAL]
+# ============================================================================
+# Definisikan fase-fase pengembangan project.
+# Kiro akan mengerjakan per fase — selesai fase 1, lanjut fase 2, dst.
+#
+# CARA LANJUT KE FASE BERIKUTNYA:
+#   Setelah fase selesai, bilang ke Kiro:
+#   "Lanjut ke fase 2" atau "Kerjakan fase berikutnya dari project_intake.yaml"
+#   Kiro akan baca roadmap dan mulai fitur-fitur di fase tersebut.
+# ============================================================================
+roadmap:
+
+  - phase: 1
+    name: "MVP"
+    description: "Fitur inti minimum agar produk bisa dipakai"
+    target: ""                      # target waktu (contoh: "1 bulan", "Sprint 1-3")
+    features:
+      - "Deskripsikan fitur fase 1 di sini"
+      - "Contoh: User bisa registrasi, login, dan melihat dashboard"
+      - "Contoh: Admin bisa kelola data master"
+    # Setelah fase ini selesai, Kiro akan:
+    #   - Jalankan security_audit_flow (audit keamanan)
+    #   - Jalankan deployment_flow (deploy ke staging)
+    #   - Update FEATURE_STATUS.md
+
+  - phase: 2
+    name: "Enhancement"
+    description: "Fitur tambahan yang meningkatkan value produk"
+    target: ""
+    features:
+      - "Deskripsikan fitur fase 2 di sini"
+      - "Contoh: Integrasi payment gateway"
+      - "Contoh: Notifikasi email dan push notification"
+    # Kiro akan otomatis:
+    #   - Cek apakah ada perubahan database -> jalankan migration_flow
+    #   - Cek apakah ada perubahan infra -> jalankan deployment_flow
+    #   - Jalankan feature_flow untuk setiap fitur baru
+
+  - phase: 3
+    name: "Scale & Optimize"
+    description: "Optimasi performa, scaling, dan monitoring"
+    target: ""
+    features:
+      - "Deskripsikan fitur fase 3 di sini"
+      - "Contoh: Caching layer untuk endpoint yang sering diakses"
+      - "Contoh: Analytics dashboard"
+      - "Contoh: Auto-scaling dan load testing"
+
+  # Tambahkan fase lain sesuai kebutuhan:
+  # - phase: 4
+  #   name: "Advanced Features"
+  #   description: ""
+  #   target: ""
+  #   features:
+  #     - ""

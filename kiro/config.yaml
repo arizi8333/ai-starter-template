@@ -1,0 +1,107 @@
+project_name: ai-system
+
+# Default flow
+default_flow: feature_flow
+
+# Quality control
+quality:
+  threshold: 80
+  scoring_enabled: true
+  auto_reject: true
+  scoring:
+    architecture: 15
+    transaction: 10
+    testing: 15
+    observability: 10
+    apm: 5
+    security: 10
+    performance: 10
+    code_quality: 5
+    database: 10
+    infrastructure: 5
+    security_audit: 5
+
+# Retry mechanism
+retry:
+  max_attempt: 3
+  on_fail: true
+  strategy: fix_only_failed_checks
+
+# Features toggle
+features:
+  quality_tracking: true
+  feedback_loop: true
+  pr_automation: true
+  observability_check: true
+  security_check: true
+
+# QA behavior
+qa:
+  strict_mode: true
+  fail_fast: true
+  require_all_categories: true
+
+# PR Automation
+pr:
+  auto_create: true
+  require_pass: true
+  include_summary: true
+  include_score: true
+  include_checklist: true
+
+# Logging & debug
+logging:
+  level: info
+  save_execution_history: true
+
+# Memory system
+memory:
+  quality_history_file: kiro/memory/quality_history.json
+  execution_history_file: kiro/memory/execution_history.json
+
+# Environment
+environment:
+  mode: development   # development | staging | sandbox | production
+
+# === ENTERPRISE ENHANCEMENT ===
+
+# Database configuration
+database:
+  connection_pool:
+    max_open: 25
+    max_idle: 10
+    max_lifetime: 300  # seconds
+  migration_tool: golang-migrate
+  backup:
+    schedule: "0 2 * * *"  # daily at 2 AM
+    retention_days: 30
+
+# Infrastructure configuration
+infrastructure:
+  deployment_strategy: rolling  # blue-green | canary | rolling
+  container_registry: ""
+  kubernetes:
+    namespace:
+      development: dev
+      staging: staging
+      production: prod
+  iac_tool: terraform
+
+# Security configuration
+security:
+  audit_schedule: weekly
+  vulnerability_scan_enabled: true
+  severity_threshold: high  # critical | high — auto-reject threshold
+
+# Deployment configuration
+deployment:
+  environments:
+    - name: development
+      approval_required: false
+      rollback_enabled: true
+    - name: staging
+      approval_required: false
+      rollback_enabled: true
+    - name: production
+      approval_required: true
+      rollback_enabled: true

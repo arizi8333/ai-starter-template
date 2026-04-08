@@ -1,0 +1,30 @@
+steps:
+  - agent: pm_agent
+
+  - agent: planner_agent
+
+  # optional early review (prevent bad design)
+  - agent: reviewer_agent
+
+  - agent: dev_agent
+
+  - step: run_make_swagger
+
+  - agent: qa_agent
+
+  - loop:
+      condition: qa_agent.status == "fail"
+      max_retry: 3
+      steps:
+        - agent: dev_agent
+        - step: run_make_swagger
+        - agent: qa_agent
+
+  # final validation
+  - agent: reviewer_agent
+
+  - agent: optimizer_agent
+
+  - agent: techwriter_agent
+
+  - agent: orchestrator_agent

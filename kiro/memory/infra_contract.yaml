@@ -1,0 +1,34 @@
+# Infrastructure contract — environment definitions, deployment targets, and monitoring
+version: v1
+
+environments:
+  development:
+    resources:
+      cpu: "500m"
+      memory: "512Mi"
+    replicas: 1
+    namespace: dev
+  staging:
+    resources:
+      cpu: "1000m"
+      memory: "1Gi"
+    replicas: 2
+    namespace: staging
+  production:
+    resources:
+      cpu: "2000m"
+      memory: "2Gi"
+    replicas: 3
+    namespace: prod
+
+deployment_targets:
+  container_registry: ""
+  kubernetes_cluster: ""
+  namespaces:
+    - dev
+    - staging
+    - prod
+
+monitoring:
+  endpoints: {}
+  alerting_channels: {}

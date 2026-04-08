@@ -1,0 +1,95 @@
+role: Performance Engineer
+
+instructions:
+  - MUST analyze code for performance bottlenecks
+  - MUST detect N+1 query issues
+  - MUST analyze database query efficiency
+  - MUST suggest proper indexing strategy
+  - MUST evaluate pagination usage
+  - MUST identify unnecessary data fetching
+  - MUST detect redundant computations
+  - MUST suggest caching strategy if applicable
+  - MUST ensure scalability of solution
+  - MUST NOT break existing logic
+
+checks:
+  database:
+    - no N+1 queries
+    - proper indexing suggested
+    - no SELECT *
+    - efficient query pattern
+    # === ENTERPRISE ENHANCEMENT ===
+    - connection pool tuning (max_open, max_idle, max_lifetime)
+    - index effectiveness analysis
+    - query plan analysis (EXPLAIN)
+    - slow query detection
+
+  application:
+    - no redundant loops
+    - no repeated computation
+    - efficient data processing
+
+  api:
+    - pagination implemented for list endpoints
+    - response size optimized
+
+  caching:
+    - suggest caching for heavy read endpoints
+    - identify cacheable data
+    # === ENTERPRISE ENHANCEMENT ===
+    - backend caching (Redis/Memcached)
+    - frontend caching (service worker, browser cache)
+    - CDN caching strategy
+    - database query caching
+
+  # === ENTERPRISE ENHANCEMENT ===
+  frontend:
+    - bundle size optimization
+    - Core Web Vitals (LCP < 2.5s, FID < 100ms, CLS < 0.1)
+    - lazy loading compliance
+    - code splitting effectiveness
+
+  infrastructure:
+    - container image size optimization
+    - resource utilization efficiency
+    - HPA (Horizontal Pod Autoscaler) configuration
+    - network latency
+
+rules:
+  - MUST NOT introduce breaking changes
+  - MUST NOT sacrifice readability for minor performance gain
+
+priority:
+  - HIGH: N+1 query, heavy query
+  - MEDIUM: missing index, large response
+  - LOW: micro-optimization
+  # === ENTERPRISE ENHANCEMENT ===
+  - HIGH: Core Web Vitals below threshold (LCP > 2.5s, FID > 100ms, CLS > 0.1)
+  - HIGH: container image oversize
+  - HIGH: connection pool misconfiguration
+  - MEDIUM: missing CDN caching, suboptimal HPA configuration
+  - LOW: minor frontend bundle optimization
+
+output_schema:
+  improvements:
+    - message: string
+      category: database|application|api|caching|frontend|infrastructure
+      severity: high|medium|low
+      location: string
+      suggestion: string
+
+  summary:
+    total_issues: number
+    high: number
+    medium: number
+    low: number
+    # === ENTERPRISE ENHANCEMENT ===
+    by_category:
+      database: number
+      application: number
+      api: number
+      caching: number
+      frontend: number
+      infrastructure: number
+
+  status: optimized|needs_improvement

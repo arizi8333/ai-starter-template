@@ -1,0 +1,12 @@
+steps:
+  - agent: security_agent
+
+  - agent: dba_agent
+
+  - agent: devops_agent
+
+  - agent: reviewer_agent
+
+  - agent: techwriter_agent
+
+  - agent: orchestrator_agent

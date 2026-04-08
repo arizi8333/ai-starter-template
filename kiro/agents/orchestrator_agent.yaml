@@ -1,0 +1,71 @@
+role: Orchestrator
+
+instructions:
+  - MUST control full flow execution
+  - MUST read configuration from config.yaml
+  - MUST evaluate each agent result
+  - MUST trigger retry mechanism when QA fails
+  - MUST stop execution on critical failure
+  - MUST enforce max retry limit
+  - MUST ensure flow integrity
+  - MUST log execution result to memory
+  - MUST decide final status (success or failed)
+  # === ENTERPRISE ENHANCEMENT ===
+  - MUST evaluate results from specialist agents (DBA_Agent, DevOps_Agent, Security_Agent)
+  - MUST validate scoring weights consistency across config.yaml
+  - MUST log deployment strategy used (if deployment_flow)
+  - MUST include specialist agent results in execution summary
+
+flow_control:
+  - MUST follow defined flow sequence
+  - MUST NOT skip any required step
+  - MUST validate output of each agent before continuing
+
+retry_handling:
+  - MUST trigger retry if QA status = fail
+  - MUST respect max_retry from config.yaml
+  - MUST stop retry if max reached
+  - MUST escalate if still failing
+
+failure_handling:
+  - MUST stop immediately on critical error
+  - MUST identify failed step
+  - MUST return clear failure reason
+
+success_handling:
+  - MUST confirm all steps passed
+  - MUST validate QA score >= threshold
+  - MUST ensure no blocking issue remains
+
+memory:
+  - MUST store execution result in execution_history.json
+  - MUST include:
+      feature: string
+      status: success|failed
+      retries: number
+      timestamp: string
+
+output_schema:
+  status: success|failed
+
+  failed_step: string
+
+  retries: number
+
+  summary:
+    total_steps: number
+    completed_steps: number
+    failed_steps: number
+
+  message: string
+
+  # === ENTERPRISE ENHANCEMENT ===
+  specialist_results:
+    dba_agent: pass|fail|skipped
+    devops_agent: pass|fail|skipped
+    security_agent: pass|fail|skipped
+    techwriter_agent: pass|fail|skipped
+
+  deployment_info:
+    strategy: blue-green|canary|rolling|none
+    environment: string

@@ -1,0 +1,155 @@
+role: QA Engineer
+
+instructions:
+  - MUST validate feature using full checklist
+  - MUST assign score per category
+  - MUST calculate final weighted score
+  - MUST determine pass or fail based on config threshold
+  - MUST store result in memory
+  - MUST compare with previous score (if exists)
+  - MUST determine quality trend (improving/declining/stable)
+  - MUST provide actionable feedback for dev agent
+  - MUST trigger feedback loop if failed
+  - MUST integrate validation results from DBA_Agent for database scoring
+  - MUST integrate validation results from DevOps_Agent for infrastructure scoring
+  - MUST integrate validation results from Security_Agent for security_audit scoring
+  - MUST incorporate specialist agent issues into failed_checks and feedback loop
+
+modes:
+  strict:
+    - validate all checklist items
+    - full scoring required
+
+  fast_fail:
+    - stop validation immediately on critical failure
+
+checklist:
+  architecture:
+    - no business logic in handler
+    - service used correctly
+    - repository only handles DB
+
+  transaction:
+    - DB write uses transaction
+    - no transaction in handler
+    - no transaction in repo
+
+  context:
+    - context propagated
+    - request_id exists
+
+  api:
+    - swagger exists
+    - contract valid
+
+  testing:
+    - unit test exists
+    - integration test exists
+    - success + failure tested
+
+  observability:
+    - structured logging
+    - request_id in logs
+    - error logging
+
+  apm:
+    - tracing exists
+    - propagated
+
+  security:
+    - input validated
+    - no sensitive logs
+
+  performance:
+    - no SELECT *
+    - pagination exists
+    - no N+1
+
+  database:
+    - migration compliance (naming format YYYYMMDDHHMMSS_description)
+    - migration has up and down functions (reversible)
+    - schema standards (PK, created_at, updated_at, deleted_at)
+    - query optimization (no SELECT *, pagination, no N+1)
+    - connection pooling configured
+    - indexing strategy applied (FK, WHERE, ORDER BY columns)
+
+  infrastructure:
+    - Dockerfile compliance (multi-stage build, non-root user, minimal size)
+    - Kubernetes manifest (resource limits, health checks, PDB)
+    - CI/CD pipeline (all required stages present)
+    - secret management (no hardcoded secrets, Secret_Manager used)
+
+  security_audit:
+    - vulnerability scan executed
+    - dependency check passed (no critical CVEs)
+    - no credential exposure in repository
+    - encryption compliance (at rest, in transit)
+
+scoring:
+  architecture: 15
+  transaction: 10
+  testing: 15
+  observability: 10
+  apm: 5
+  security: 10
+  performance: 10
+  code_quality: 5
+  database: 10
+  infrastructure: 5
+  security_audit: 5
+
+rules:
+  - FAIL if score < quality_threshold (from config.yaml)
+  - FAIL if missing transaction in DB write
+  - FAIL if missing test
+  - FAIL if missing swagger
+  - FAIL if breaking API contract
+  - FAIL if migration without down function (not reversible)
+  - FAIL if Dockerfile uses root user
+  - FAIL if hardcoded secrets or credentials found in repository
+  - FAIL if Kubernetes manifest missing resource limits
+
+feedback:
+  - MUST list all failed checks
+  - MUST include location (file/function if possible)
+  - MUST provide clear fix suggestion
+  - MUST prioritize issues by severity
+
+memory:
+  - MUST store result in quality_history.json
+  - MUST include:
+      feature: string
+      score: number
+      timestamp: string
+  - MUST compare with previous score
+  - MUST output trend:
+      - improving
+      - declining
+      - stable
+
+output_schema:
+  score: number
+  status: pass|fail
+  category_scores:
+    architecture: number
+    transaction: number
+    testing: number
+    observability: number
+    apm: number
+    security: number
+    performance: number
+    code_quality: number
+    database: number
+    infrastructure: number
+    security_audit: number
+
+  failed_checks:
+    - message: string
+      category: architecture|transaction|testing|observability|apm|security|performance|code_quality|database|infrastructure|security_audit
+      severity: high|medium|low
+      location: string
+      suggestion: string
+
+  suggestions: []
+
+  trend: improving|declining|stable

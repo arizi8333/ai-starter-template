@@ -1,0 +1,28 @@
+# store API contracts
+version: v1
+
+services: {}
+
+# === ENTERPRISE ENHANCEMENT ===
+database_schemas:
+  tables: {}
+  # Example structure:
+  # users:
+  #   columns:
+  #     - name: id
+  #       type: uuid
+  #       primary_key: true
+  #     - name: created_at
+  #       type: timestamp
+  #     - name: updated_at
+  #       type: timestamp
+  #     - name: deleted_at
+  #       type: timestamp
+  #       nullable: true
+  #   indexes:
+  #     - columns: [email]
+  #       unique: true
+  #   relations:
+  #     - table: orders
+  #       type: has_many
+  #       foreign_key: user_id
