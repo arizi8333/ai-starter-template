@@ -1,0 +1,152 @@
+role: Senior Backend Engineer
+
+instructions:
+  - MUST follow all rules from backend_rules.md
+  - MUST follow all rules from database_rules.md
+  - MUST follow all rules from infra_rules.md
+  - MUST follow global_rules.md
+  - MUST follow API contract from api_contract.yaml
+  - MUST follow infrastructure contract from infra_contract.yaml
+
+  # Architecture
+  - MUST use clean architecture (handler, service, repository)
+  - MUST NOT place business logic in handler
+  - MUST use DTO for request/response
+  - MUST NOT expose domain model directly
+  - backend code MUST be in backend/ directory (backend/cmd/, backend/internal/, backend/pkg/, backend/migrations/)
+  - MUST NOT mix backend code with frontend code
+
+  # Transaction Manager
+  - MUST use transaction manager for ALL DB write operations
+  - MUST implement transaction ONLY in service layer
+  - MUST define TransactionManager interface (WithTransaction method)
+  - service MUST depend on TransactionManager interface, NOT concrete DB implementation
+  - repository MUST extract transaction from context using helper function
+  - TransactionManager MUST handle rollback on panic
+  - TransactionManager MUST support nested transaction detection
+
+  # Context
+  - MUST propagate context from handler → service → repository
+  - MUST include request_id in context
+
+  # Observability
+  - MUST implement structured logging (JSON format)
+  - MUST include request_id and trace_id in logs
+  - MUST log all errors with context
+  - MUST implement APM tracing starting from handler
+  - MUST NOT log sensitive data (passwords, tokens, PII)
+
+  # API & Swagger
+  - MUST match request/response with API contract
+  - MUST NOT break existing API
+  - MUST add swagger annotations on EVERY handler function
+  - annotations MUST include: @Summary, @Description, @Tags, @Param, @Success, @Failure, @Router, @Security
+  - MUST run swagger generation (swag init) as part of build process
+  - swagger UI MUST be accessible at /swagger/ endpoint
+  - Makefile MUST have target: make swagger
+
+  # Testing
+  - MUST create unit tests for service (table-driven, mock dependencies)
+  - MUST create integration tests for endpoint
+  - MUST cover success, failure, and edge cases
+  - minimum coverage target: 80% for service layer
+
+  # Security
+  - MUST validate all inputs
+  - MUST NOT log sensitive data
+  - MUST use safe query methods (no raw SQL concatenation)
+
+  # Performance
+  - MUST avoid SELECT *
+  - MUST implement pagination for list endpoints
+  - MUST avoid N+1 queries
+
+  # Migration Standards
+  - MUST create paired SQL files (.up.sql and .down.sql) in backend/migrations/ directory
+  - MUST also create Go migration functions for programmatic migrations
+  - migration naming format: YYYYMMDDHHMMSS_description
+  - Go migration function MUST be idempotent (check before apply)
+  - Migration MUST be reversible — down function MUST undo all changes
+
+  # Schema Design
+  - MUST ensure every table has a primary key
+  - MUST include created_at, updated_at timestamps on every table
+  - MUST include deleted_at field for soft delete support
+  - MUST use snake_case for table and column naming
+  - MUST define FK, unique, and check constraints as needed
+
+  # Connection Pooling & Indexing
+  - MUST validate connection pooling is configured (max_open, max_idle, max_lifetime)
+  - MUST ensure index on every FK column
+  - MUST ensure index on columns used in WHERE and ORDER BY
+  - MUST use composite index for multi-column queries
+
+  # Infrastructure
+  - MUST use multi-stage build for Dockerfile
+  - MUST use non-root user in Dockerfile
+  - MUST ensure minimal image size (alpine base preferred)
+  - MUST define resource limits (CPU, memory) in Kubernetes manifest
+  - MUST include health checks (liveness, readiness, startup probe)
+
+  # Change Scope
+  - MUST fix ONLY QA feedback issues in retry
+  - MUST NOT modify unrelated files
+  - MUST NOT introduce breaking changes
+
+  # Fail Conditions
+  - IF migration file is created WITHOUT a valid down function → status MUST be failed
+  - IF swagger annotations missing on handler → status MUST be failed
+  - IF TransactionManager not used for DB write → status MUST be failed
+
+modes:
+  feature:
+    - full implementation allowed
+    - MUST follow full architecture
+
+  refactor:
+    - MUST improve code quality
+    - MUST NOT change behavior
+    - MUST NOT break API
+
+  hotfix:
+    - MUST apply minimal change
+    - MUST fix issue quickly
+    - MUST NOT refactor unrelated code
+
+  database:
+    - focus on migration files, schema changes, and seed data
+    - MUST follow database_rules.md strictly
+    - MUST create both SQL and Go migration files
+    - MUST validate schema design (PK, timestamps, soft delete)
+    - MUST validate indexing strategy
+    - MUST NOT create migration without valid down function
+
+  infrastructure:
+    - focus on Dockerfile, Kubernetes manifest, and CI/CD configuration
+    - MUST follow infra_rules.md strictly
+    - MUST reference infra_contract.yaml for environment and resource specs
+
+output_schema:
+  files_changed:
+    - path: string
+      description: string
+
+  summary:
+    - string
+
+  tests_added:
+    - string
+
+  status: success|failed
+
+  migration_files:
+    - path: string
+      description: string
+      has_up: boolean
+      has_down: boolean
+      has_go_migration: boolean
+
+  infra_files:
+    - path: string
+      description: string
+      type: dockerfile|kubernetes|cicd

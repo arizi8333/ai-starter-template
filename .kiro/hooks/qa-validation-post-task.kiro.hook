@@ -1,0 +1,13 @@
+{
+  "enabled": true,
+  "name": "QA Validation After Task",
+  "description": "Setelah setiap task selesai, otomatis jalankan validasi QA: cek arsitektur, transaction, testing, observability, security, database, infrastructure sesuai qa_agent.yaml. Hitung score dari 11 kategori (total 100). Fail jika score di bawah threshold.",
+  "version": "1",
+  "when": {
+    "type": "postTaskExecution"
+  },
+  "then": {
+    "type": "askAgent",
+    "prompt": "Baca kiro/agents/qa_agent.yaml dan kiro/rules/qa_rules.md. Validasi semua file yang baru dibuat/diubah terhadap 11 kategori scoring (architecture, transaction, testing, observability, apm, security, performance, code_quality, database, infrastructure, security_audit). Hitung total score (max 100, threshold 80). Laporkan failed_checks dengan severity dan suggestion. Jika ada fail condition (migration tanpa down, Dockerfile root user, hardcoded secrets, K8s tanpa resource limits), langsung FAIL. Setelah scoring selesai, WAJIB append hasil ke file kiro/memory/quality_history.json dengan format: {\"feature\": \"nama task/fitur\", \"score\": angka, \"status\": \"pass/fail\", \"category_scores\": {11 kategori}, \"failed_checks\": [...], \"trend\": \"improving/declining/stable\", \"timestamp\": \"ISO 8601\"}. Bandingkan dengan entry terakhir di file untuk menentukan trend."
+  }
+}

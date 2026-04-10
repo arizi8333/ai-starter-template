@@ -1,0 +1,13 @@
+{
+  "enabled": true,
+  "name": "Auto Code Review",
+  "description": "Setelah agent selesai bekerja (stop), otomatis review code yang diubah terhadap semua rules (backend, frontend, database, infra, global, git hygiene) sesuai reviewer_agent.yaml. Laporkan issues dengan severity.",
+  "version": "1",
+  "when": {
+    "type": "agentStop"
+  },
+  "then": {
+    "type": "askAgent",
+    "prompt": "Baca kiro/agents/reviewer_agent.yaml. Review semua file yang baru dibuat/diubah di session ini. Validasi terhadap: backend_rules.md, database_rules.md, infra_rules.md, frontend_rules.md, global_rules.md. Cek arsitektur, transaction manager usage, swagger annotations, migration quality, git hygiene. Laporkan issues dengan severity (HIGH/MEDIUM/LOW) dan suggestion perbaikan."
+  }
+}

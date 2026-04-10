@@ -1,7 +1,12 @@
 steps:
   - agent: reviewer_agent
 
-  - agent: dev_agent
+  # fix backend
+  - agent: backend_dev_agent
+
+  # fix frontend (if applicable)
+  - agent: frontend_dev_agent
+    condition: tech_stack.frontend.enabled == true
 
   - agent: qa_agent
 
@@ -9,7 +14,9 @@ steps:
       condition: qa_agent.status == "fail"
       max_retry: 2
       steps:
-        - agent: dev_agent
+        - agent: backend_dev_agent
+        - agent: frontend_dev_agent
+          condition: tech_stack.frontend.enabled == true
         - agent: qa_agent
 
   - agent: techwriter_agent

@@ -542,8 +542,8 @@ In addition to existing frontend rules, the following enterprise-grade standards
 
 ## Migration Flow (`kiro/flows/migration_flow.yaml`)
 - **Use Case**: Database schema changes and migrations
-- **Steps**: planner_agent → dev_agent → dba_agent → reviewer_agent → qa_agent → loop (retry if dba/qa fail, max_retry from config) → techwriter_agent → orchestrator_agent
-- **Retry**: Automatic feedback loop back to dev_agent if DBA_Agent or qa_agent returns fail
+- **Steps**: planner_agent → backend_dev_agent → dba_agent → reviewer_agent → qa_agent → loop (retry if dba/qa fail, max_retry from config) → techwriter_agent → orchestrator_agent
+- **Retry**: Automatic feedback loop back to backend_dev_agent if DBA_Agent or qa_agent returns fail
 
 ## Deployment Flow (`kiro/flows/deployment_flow.yaml`)
 - **Use Case**: Infrastructure deployment and release

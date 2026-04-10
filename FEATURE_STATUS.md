@@ -37,7 +37,8 @@
 
 ## Phase 6: Agent Enhancements (Req 14–18)
 
-- [x] `kiro/agents/dev_agent.yaml` — Added database/infra awareness, modes, migration validation, contract references (Req 14)
+- [x] `kiro/agents/backend_dev_agent.yaml` — Backend engineer: clean architecture, TransactionManager interface, swagger annotations, SQL + Go migrations (Req 14)
+- [x] `kiro/agents/frontend_dev_agent.yaml` — Frontend engineer: component architecture, typed API service, accessibility, i18n, CWV (Req 14)
 - [x] `kiro/agents/qa_agent.yaml` — Added database/infra/security checklists, rebalanced scoring, new fail conditions, specialist agent integration (Req 15)
 - [x] `kiro/agents/reviewer_agent.yaml` — Added database/infra/frontend review checks, new rules references, updated modes (Req 16)
 - [x] `kiro/agents/pm_agent.yaml` — Added database/infra/frontend/security requirements to output, infra_contract reference (Req 17)
@@ -66,6 +67,6 @@
 | 2026-04-08 | Phase 3: Created `migration_flow.yaml`, `deployment_flow.yaml`, `security_audit_flow.yaml` |
 | 2026-04-08 | Phase 4: Updated `config.yaml`, `api_contract.yaml`; created `infra_contract.yaml` |
 | 2026-04-08 | Phase 5: Updated blueprint main document and `qa_rules.md`                  |
-| 2026-04-08 | Phase 6: Enhanced `dev_agent`, `qa_agent`, `reviewer_agent`, `pm_agent`, `optimizer_agent` |
+| 2026-04-08 | Phase 6: Split `dev_agent` into `backend_dev_agent` + `frontend_dev_agent`; enhanced `qa_agent`, `reviewer_agent`, `pm_agent`, `optimizer_agent` |
 | 2026-04-08 | Phase 7: Integrated `techwriter_agent` into `feature_flow`, `hotfix_flow`, `refactor_flow` |
 | 2026-04-08 | Phase 8: Created `README.md` and `FEATURE_STATUS.md`                        |

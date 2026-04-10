@@ -1,7 +1,8 @@
 steps:
   - agent: planner_agent
 
-  - agent: dev_agent
+  # backend handles migrations (SQL + Go migration files)
+  - agent: backend_dev_agent
 
   - agent: dba_agent
 
@@ -13,7 +14,7 @@ steps:
       condition: dba_agent.status == "fail" OR qa_agent.status == "fail"
       max_retry: 3  # from config.yaml retry.max_attempt
       steps:
-        - agent: dev_agent
+        - agent: backend_dev_agent
         - agent: dba_agent
         - agent: qa_agent
 

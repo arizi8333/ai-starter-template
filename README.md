@@ -14,7 +14,8 @@ ai-starter-template/
 └── kiro/
     ├── config.yaml
     ├── agents/
-    │   ├── dev_agent.yaml
+    │   ├── backend_dev_agent.yaml
+    │   ├── frontend_dev_agent.yaml
     │   ├── qa_agent.yaml
     │   ├── reviewer_agent.yaml
     │   ├── pm_agent.yaml
@@ -55,11 +56,12 @@ ai-starter-template/
 
 ## Agents
 
-The blueprint includes 11 specialized agents:
+The blueprint includes 12 specialized agents:
 
 | Agent | Role | Description |
 |-------|------|-------------|
-| `dev_agent` | Developer | Implements features following backend, database, and infrastructure rules. Supports `backend`, `database`, and `infrastructure` modes. |
+| `backend_dev_agent` | Backend Engineer | Implements backend features (Go: handler, service, repository, migration, swagger). Supports `feature`, `refactor`, `hotfix`, `database`, `infrastructure` modes. |
+| `frontend_dev_agent` | Frontend Engineer | Implements frontend features (React/Vue/Next: pages, components, services, types). Supports `feature`, `refactor`, `hotfix` modes. Skipped if frontend not enabled. |
 | `qa_agent` | QA Engineer | Validates quality across 11 scoring categories. Integrates results from specialist agents. Fails on critical violations. |
 | `reviewer_agent` | Code Reviewer | Reviews code against all rules (global, backend, frontend, database, infra) and git hygiene. Supports `early_review` and `final_review` modes. |
 | `pm_agent` | Product Manager | Defines feature specs including database, infrastructure, frontend, and security requirements. |
@@ -77,10 +79,10 @@ The blueprint includes 11 specialized agents:
 
 | Flow | Steps | Use Case |
 |------|-------|----------|
-| `feature_flow` | pm → planner → dev → reviewer → qa → optimizer → techwriter → orchestrator | New feature development |
-| `hotfix_flow` | dev → reviewer → qa → techwriter → orchestrator | Urgent bug fixes |
-| `refactor_flow` | planner → dev → reviewer → qa → optimizer → techwriter → orchestrator | Code refactoring |
-| `migration_flow` | planner → dev → dba → reviewer → qa → (retry loop) → techwriter → orchestrator | Database schema changes |
+| `feature_flow` | pm → planner → reviewer → backend_dev → swagger → frontend_dev → qa → optimizer → techwriter → orchestrator | New feature development |
+| `hotfix_flow` | reviewer → backend_dev → frontend_dev → qa → techwriter → orchestrator | Urgent bug fixes |
+| `refactor_flow` | planner → backend_dev → frontend_dev → qa → reviewer → optimizer → techwriter → orchestrator | Code refactoring |
+| `migration_flow` | planner → backend_dev → dba → reviewer → qa → (retry loop) → techwriter → orchestrator | Database schema changes |
 | `deployment_flow` | devops → security → qa → (retry loop) → techwriter → orchestrator | Infrastructure deployment |
 | `security_audit_flow` | security → dba → devops → reviewer → techwriter → orchestrator | Comprehensive security audit |
 

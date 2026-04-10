@@ -33,6 +33,8 @@ checklist:
     - DB write uses transaction
     - no transaction in handler
     - no transaction in repo
+    - TransactionManager interface used (not concrete DB implementation)
+    - transaction managed via context propagation
 
   context:
     - context propagated
@@ -46,6 +48,10 @@ checklist:
     - unit test exists
     - integration test exists
     - success + failure tested
+    - test MUST be executed and passing (not just written)
+    - coverage report generated (coverprofile)
+    - coverage percentage meets threshold (>= 80% service layer)
+    - test results documented (total, passed, failed, skipped, duration)
 
   observability:
     - structured logging
@@ -108,6 +114,8 @@ rules:
   - FAIL if Dockerfile uses root user
   - FAIL if hardcoded secrets or credentials found in repository
   - FAIL if Kubernetes manifest missing resource limits
+  - FAIL if tests not executed or not passing after implementation
+  - FAIL if coverage below 80% on service layer
 
 feedback:
   - MUST list all failed checks

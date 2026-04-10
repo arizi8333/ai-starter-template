@@ -1,0 +1,13 @@
+{
+  "enabled": true,
+  "name": "Save Execution History",
+  "description": "Setelah agent selesai bekerja, otomatis catat hasil eksekusi ke kiro/memory/execution_history.json. Mencatat fitur/task yang dikerjakan, status (success/failed), jumlah retry, dan timestamp.",
+  "version": "1",
+  "when": {
+    "type": "agentStop"
+  },
+  "then": {
+    "type": "askAgent",
+    "prompt": "Baca kiro/agents/orchestrator_agent.yaml. Catat hasil eksekusi session ini ke kiro/memory/execution_history.json. Append entry baru dengan format: {\"feature\": \"nama fitur/task yang dikerjakan\", \"status\": \"success/failed\", \"retries\": jumlah retry yang terjadi (0 jika tidak ada), \"files_changed\": jumlah file yang dibuat/diubah, \"timestamp\": \"ISO 8601 format\"}. Baca file existing terlebih dahulu, lalu append entry baru ke array. JANGAN overwrite entry yang sudah ada."
+  }
+}

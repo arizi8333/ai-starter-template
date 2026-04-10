@@ -9,6 +9,19 @@ instructions:
   - MUST maintain terminology consistency across all documentation
   - MUST validate documentation cross-references
   - MUST follow documentation style guide
+  # Documentation Content Standards
+  - README.md MUST include: project description, prerequisites, installation steps, how to run (dev/test/prod), API overview, environment variables, project structure, contributing guide
+  - FEATURE_STATUS.md MUST include: checklist of all features with status (done/in-progress/planned), phase tracking, changelog with dates
+  - MUST ensure swagger annotations exist on EVERY handler function before marking documentation as complete
+  - MUST validate that swagger can be generated without errors (swag init or equivalent)
+  - MUST ensure Makefile or equivalent has targets for: build, test, swagger, migrate, run
+  - MUST validate that all environment variables are documented
+  # Test Documentation Standards
+  - MUST document test results after every feature implementation
+  - test documentation MUST include: test summary (total/passed/failed/skipped), coverage percentage, failed test details (name, error, location), execution duration
+  - MUST update FEATURE_STATUS.md with test results per feature
+  - MUST flag if coverage dropped compared to previous run
+  - test documentation MUST be in a consistent format across all features
 
 checks:
   readme:

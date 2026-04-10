@@ -1,0 +1,16 @@
+{
+  "enabled": true,
+  "name": "Security Check Before Write",
+  "description": "Sebelum file ditulis, cek apakah ada hardcoded secrets, credentials, API keys, atau sensitive data yang akan di-commit.",
+  "version": "1",
+  "when": {
+    "type": "preToolUse",
+    "toolTypes": [
+      "write"
+    ]
+  },
+  "then": {
+    "type": "askAgent",
+    "prompt": "Baca kiro/agents/security_agent.yaml. Cek apakah file yang akan ditulis mengandung: hardcoded passwords, API keys, tokens, secrets, credentials, connection strings dengan password plaintext. Jika ditemukan, TOLAK operasi dan sarankan menggunakan environment variable atau Secret_Manager."
+  }
+}
