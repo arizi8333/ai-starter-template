@@ -1,0 +1,63 @@
+# === Backend (Go) ===
+backend/server
+backend/tmp/
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+*.test
+*.out
+vendor/
+
+# === Frontend (Node/React/Vue/Next) ===
+frontend/node_modules/
+frontend/.next/
+frontend/out/
+frontend/dist/
+frontend/build/
+frontend/.nuxt/
+frontend/.output/
+frontend/.turbo/
+
+# === Environment & Secrets ===
+.env
+.env.local
+.env.*.local
+*.pem
+*.key
+
+# === IDE & Editor ===
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# === Build & Generated ===
+dist/
+build/
+tmp/
+*.log
+
+# === Docker ===
+docker-compose.override.yml
+
+# === Swagger (generated — regenerate with make swagger) ===
+backend/docs/swagger.json
+backend/docs/swagger.yaml
+backend/docs/docs.go
+
+# === OS ===
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# === Coverage ===
+coverage/
+*.coverprofile
+coverage.out
+coverage.html
+
+# === Test Reports (generated — regenerate with make test) ===
+reports/

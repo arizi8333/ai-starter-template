@@ -16,6 +16,39 @@
 
 - MUST follow clean architecture layering strictly
 
+## Project Structure (Monorepo)
+- backend and frontend MUST be in separate root directories
+- backend: `backend/` (contains cmd/, internal/, pkg/, migrations/, go.mod, Makefile, Dockerfile)
+- frontend: `frontend/` (contains src/, package.json, tsconfig.json, Dockerfile)
+- shared configs (docker-compose, CI/CD) at project root
+- MUST NOT mix backend Go code with frontend TypeScript/JavaScript code
+- each layer (backend/frontend) MUST be independently buildable and deployable
+- project structure:
+  ```
+  project-root/
+  ├── backend/
+  │   ├── cmd/server/main.go
+  │   ├── internal/ (handler, service, repository, dto, model, middleware, pkg)
+  │   ├── pkg/
+  │   ├── migrations/ (SQL + Go migration files)
+  │   ├── go.mod
+  │   ├── go.sum
+  │   ├── Makefile
+  │   └── Dockerfile
+  ├── frontend/
+  │   ├── src/ (app, components, services, types, utils)
+  │   ├── package.json
+  │   ├── tsconfig.json
+  │   └── Dockerfile
+  ├── reports/ (gitignored — auto-generated test reports)
+  │   ├── backend/ (coverage.out, coverage.html, coverage-summary.txt, test-results.json)
+  │   └── frontend/ (test results, coverage)
+  ├── docker-compose.yml
+  ├── kiro/ (blueprint)
+  ├── README.md
+  └── project_intake.yaml
+  ```
+
 ---
 
 # 🔄 TRANSACTION RULES
@@ -27,6 +60,31 @@
 
 - repository MUST use transaction from context if available
 
+## Transaction Manager Interface
+- MUST define a `TransactionManager` interface in the service layer or shared package
+- interface MUST have at minimum: `WithTransaction(ctx context.Context, fn func(ctx context.Context) error) error`
+- service MUST use the interface, NOT concrete database implementation
+- repository MUST extract transaction from context using a helper function
+- transaction manager MUST support nested transaction detection (prevent double-begin)
+- transaction manager MUST handle rollback on panic
+- example interface (Go):
+  ```
+  type TransactionManager interface {
+      WithTransaction(ctx context.Context, fn func(ctx context.Context) error) error
+  }
+  ```
+- example usage in service:
+  ```
+  func (s *OrderService) CreateOrder(ctx context.Context, req CreateOrderRequest) error {
+      return s.txManager.WithTransaction(ctx, func(txCtx context.Context) error {
+          // all repository calls use txCtx — transaction is implicit
+          order, err := s.orderRepo.Create(txCtx, ...)
+          if err != nil { return err }
+          return s.paymentRepo.Create(txCtx, ...)
+      })
+  }
+  ```
+
 ---
 
 # 🧠 CONTEXT RULES
@@ -36,6 +94,62 @@
 - context MUST propagate:
   - request_id
   - tracing data
+
+## Context Cancellation
+- all long-running operations MUST respect context cancellation
+- database queries MUST use context-aware methods (e.g., `db.WithContext(ctx)`)
+- HTTP client calls MUST pass context (e.g., `http.NewRequestWithContext(ctx, ...)`)
+- goroutines MUST receive parent context and stop when cancelled
+- MUST NOT ignore `ctx.Done()` in loops or blocking operations
+- timeout MUST be set on all external calls (HTTP, gRPC, DB) — default 30 seconds
+- MUST use `context.WithTimeout` or `context.WithDeadline` for operations with SLA
+
+---
+
+# 🛡️ RESILIENCE PATTERNS
+
+## Circuit Breaker
+- external service calls (HTTP, gRPC, third-party API) MUST use circuit breaker pattern
+- circuit breaker MUST have three states: closed (normal), open (failing), half-open (testing recovery)
+- thresholds MUST be configurable: failure count, timeout duration, half-open max requests
+- WHEN circuit is open, MUST return fallback response or error immediately (no waiting)
+- MUST log circuit state changes (closed→open, open→half-open, half-open→closed)
+- recommended library: `sony/gobreaker` or equivalent
+
+## Retry with Backoff
+- transient failures (network timeout, 503, connection refused) MUST be retried
+- retry MUST use exponential backoff with jitter (prevent thundering herd)
+- max retry attempts MUST be configurable (default: 3)
+- MUST NOT retry on permanent errors (400, 401, 403, 404, 422)
+- MUST NOT retry on context cancellation or deadline exceeded
+
+## Timeout Management
+- every external call MUST have explicit timeout
+- database queries: max 5 seconds (configurable)
+- HTTP client calls: max 30 seconds (configurable)
+- gRPC calls: max 10 seconds (configurable)
+- MUST propagate remaining timeout from parent context to child calls
+- MUST NOT use infinite timeout in production
+
+## Rate Limiting
+- public API endpoints MUST have rate limiting
+- rate limit MUST be configurable per endpoint or per user/API key
+- MUST return HTTP 429 (Too Many Requests) with `Retry-After` header when limit exceeded
+- rate limit state SHOULD be stored in Redis for distributed systems
+
+## Bulkhead Pattern
+- critical services MUST be isolated from non-critical services
+- MUST use separate connection pools for different external dependencies
+- MUST use separate goroutine pools or semaphores for heavy operations
+- failure in one dependency MUST NOT cascade to others
+
+## Fallback Strategy
+- WHEN external service is unavailable, MUST provide fallback:
+  - cached response (if applicable)
+  - degraded response (partial data)
+  - default response (safe defaults)
+  - error response with clear message
+- MUST NOT return raw error from external service to client
 
 ---
 
@@ -126,6 +240,39 @@
 - load tests MUST run before production deployment (staging environment)
 - test failure MUST block merge/deployment
 
+## Test Reporting & Documentation
+- test results MUST be stored in `reports/backend/` directory (at project root)
+- frontend test results MUST be stored in `reports/frontend/` directory
+- report files generated automatically by test hook:
+  - `reports/backend/test-results.json` — full test output in JSON format (go test -json)
+  - `reports/backend/coverage.out` — raw coverage profile
+  - `reports/backend/coverage-summary.txt` — coverage per function summary
+  - `reports/backend/coverage.html` — visual HTML coverage report
+- reports directory is gitignored — regenerated on every test run
+- coverage report MUST be generated on every test run (`go test -coverprofile`)
+- Makefile MUST have targets:
+  - `make test` — run all unit tests with coverage
+  - `make test-integration` — run integration tests
+  - `make test-coverage` — generate HTML coverage report
+  - `make test-report` — generate test result report (JSON/JUnit)
+- test report MUST include: total tests, passed, failed, skipped, duration, coverage percentage
+- coverage percentage MUST be tracked over time (compare with previous run)
+- MUST fail CI if coverage drops below threshold (default: 80%)
+- test results SHOULD be published as PR comment or CI artifact
+- failed test MUST include: test name, error message, expected vs actual, file location
+
+## Test Automation Standards
+- tests MUST run automatically:
+  - unit tests: on every file save (via hook) and every commit
+  - integration tests: on every PR
+  - E2E tests: on PR to main/production branch
+  - load tests: before production deployment
+  - benchmark tests: on PR (with regression comparison)
+- test environment MUST be isolated (separate DB, separate config)
+- test data MUST be created and cleaned up per test (no shared state)
+- flaky tests MUST be marked and fixed within 1 sprint — MUST NOT be ignored
+- test timeout: unit test max 10 seconds, integration test max 60 seconds
+
 ---
 
 # 📜 API & SWAGGER RULES
@@ -133,6 +280,40 @@
 - every endpoint MUST have swagger documentation
 - request/response MUST match contract
 - MUST NOT break existing API
+
+## Swagger Annotation Standards (Go — swaggo/swag)
+- every handler function MUST have swagger annotations as comments above the function
+- annotations MUST include at minimum:
+  - `@Summary` — short description
+  - `@Description` — detailed description
+  - `@Tags` — API group/category
+  - `@Accept` — request content type (json)
+  - `@Produce` — response content type (json)
+  - `@Param` — for each parameter (path, query, body)
+  - `@Success` — success response with status code and schema
+  - `@Failure` — error responses (400, 401, 403, 404, 500)
+  - `@Router` — endpoint path and HTTP method
+  - `@Security` — auth requirement (if applicable)
+- example:
+  ```
+  // CreateOrder handles POST request to create a new order
+  // @Summary Create a new order
+  // @Description Create a new order with the provided details
+  // @Tags orders
+  // @Accept json
+  // @Produce json
+  // @Param request body dto.CreateOrderRequest true "Order creation request"
+  // @Success 201 {object} dto.CreateOrderResponse "Order created successfully"
+  // @Failure 400 {object} dto.ErrorResponse "Invalid request"
+  // @Failure 401 {object} dto.ErrorResponse "Unauthorized"
+  // @Failure 500 {object} dto.ErrorResponse "Internal server error"
+  // @Security BearerAuth
+  // @Router /api/v1/orders [post]
+  ```
+- swagger docs MUST be auto-generated using `swag init` or equivalent
+- swagger generation MUST be part of the build process (Makefile target: `make swagger`)
+- generated swagger files MUST be committed to repository
+- swagger UI MUST be accessible at `/swagger/` endpoint in development and staging
 
 ---
 
@@ -262,11 +443,67 @@ IF ANY RULE IS VIOLATED:
 - on shutdown signal, service MUST:
   - stop accepting new requests
   - complete in-flight requests (with timeout)
+  - stop all background workers gracefully
+  - drain message queue consumers
   - close database connections cleanly
   - flush pending logs and metrics
   - exit with code 0
 - shutdown timeout MUST be configurable (default: 30 seconds)
 - MUST NOT force-kill active connections
+- background workers MUST finish current job before stopping (or timeout)
+
+---
+
+# ⚙️ BACKGROUND PROCESS RULES
+
+## Worker Pattern
+- background workers MUST be implemented as separate goroutines with lifecycle management
+- every worker MUST accept context for cancellation
+- worker MUST stop gracefully when context is cancelled
+- worker MUST log start, stop, and error events
+- worker MUST NOT panic — recover and log errors
+- worker struct MUST implement interface: `Start(ctx context.Context) error` and `Stop() error`
+
+## Message Queue Consumer
+- consumer MUST acknowledge message ONLY after successful processing
+- consumer MUST use dead-letter queue (DLQ) for failed messages after max retries
+- consumer MUST be idempotent — processing same message twice MUST produce same result
+- consumer MUST include message ID and correlation ID in logs
+- consumer MUST respect context cancellation (stop consuming on shutdown)
+- consumer MUST handle poison messages (malformed data) without crashing
+- max retry per message MUST be configurable (default: 3)
+
+## Cron / Scheduled Jobs
+- scheduled jobs MUST use distributed lock to prevent duplicate execution in multi-instance deployment
+- lock MUST be stored in Redis or database (not in-memory)
+- job MUST have configurable schedule (cron expression from config)
+- job MUST log execution start, duration, and result
+- job MUST have timeout — MUST NOT run indefinitely
+- job MUST be idempotent (safe to re-run if previous execution was interrupted)
+- MUST NOT use `time.Sleep` loops — use proper scheduler (e.g., `robfig/cron`)
+
+## Event / Pub-Sub
+- event publisher MUST NOT block the main request flow (publish async or use buffer)
+- event MUST include: event_type, payload, timestamp, correlation_id, source_service
+- subscriber MUST be idempotent
+- subscriber MUST handle out-of-order events gracefully
+- MUST define event schema/contract for each event type
+- failed event processing MUST be retried with backoff or sent to DLQ
+
+## Background Job Queue
+- long-running tasks (email sending, report generation, file processing) MUST be offloaded to background job queue
+- MUST NOT process heavy tasks in HTTP request handler
+- job MUST have status tracking: pending → processing → completed / failed
+- job MUST have timeout and max retry
+- job result MUST be queryable (by job ID)
+- MUST support job priority (high, normal, low)
+
+## Worker Health & Monitoring
+- every background worker MUST expose health status (running/stopped/error)
+- worker health MUST be included in `/ready` endpoint check
+- worker errors MUST be logged and reported to error tracking
+- worker metrics MUST be exposed: jobs processed, jobs failed, processing duration, queue depth
+- MUST alert when worker is stuck (no progress for configurable duration)
 
 ---
 

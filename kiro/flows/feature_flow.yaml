@@ -6,9 +6,14 @@ steps:
   # optional early review (prevent bad design)
   - agent: reviewer_agent
 
-  - agent: dev_agent
+  # backend implementation
+  - agent: backend_dev_agent
 
   - step: run_make_swagger
+
+  # frontend implementation (skip if frontend not enabled)
+  - agent: frontend_dev_agent
+    condition: tech_stack.frontend.enabled == true
 
   - agent: qa_agent
 
@@ -16,8 +21,10 @@ steps:
       condition: qa_agent.status == "fail"
       max_retry: 3
       steps:
-        - agent: dev_agent
+        - agent: backend_dev_agent
         - step: run_make_swagger
+        - agent: frontend_dev_agent
+          condition: tech_stack.frontend.enabled == true
         - agent: qa_agent
 
   # final validation

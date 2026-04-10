@@ -1,0 +1,16 @@
+{
+  "enabled": true,
+  "name": "Performance Check on Edit",
+  "description": "Setelah file Go diedit, otomatis cek apakah ada pelanggaran performance rules: SELECT *, N+1 query, missing pagination, missing index hints.",
+  "version": "1",
+  "when": {
+    "type": "fileEdited",
+    "patterns": [
+      "**/*.go"
+    ]
+  },
+  "then": {
+    "type": "askAgent",
+    "prompt": "Baca kiro/agents/optimizer_agent.yaml. Cek file yang baru diedit untuk: SELECT * usage, N+1 query patterns, missing pagination, connection pool misconfiguration, slow query patterns. Jika ditemukan issue HIGH priority, laporkan dengan lokasi dan suggestion."
+  }
+}

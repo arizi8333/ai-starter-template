@@ -12,6 +12,39 @@
 - migration MUST NOT contain business logic
 - migration MUST be tested before deployment
 
+## SQL Migration Files
+- MUST create paired SQL files: `{number}_{description}.up.sql` and `{number}_{description}.down.sql`
+- up file contains the forward migration (CREATE, ALTER, ADD)
+- down file contains the reverse migration (DROP, ALTER, REMOVE)
+- SQL files MUST be in `migrations/` directory
+
+## Go Migration Files
+- in addition to SQL files, MUST create Go migration functions for programmatic migrations
+- Go migration file MUST be in `migrations/` or `internal/migrations/` package
+- Go migration function MUST accept `*gorm.DB` or `*sql.DB` as parameter
+- MUST check if change already exists before applying (idempotent)
+- naming convention: `func Migrate{Number}_{Description}(db *gorm.DB)`
+- example:
+  ```
+  package migrations
+
+  import "gorm.io/gorm"
+
+  func Migrate001_CreateUsersTable(db *gorm.DB) error {
+      if db.Migrator().HasTable("users") {
+          return nil // already exists, idempotent
+      }
+      return db.AutoMigrate(&models.User{})
+  }
+
+  func Rollback001_CreateUsersTable(db *gorm.DB) error {
+      return db.Migrator().DropTable("users")
+  }
+  ```
+- MUST provide a migration runner that executes all migrations in order
+- migration runner MUST track which migrations have been applied (migration history table)
+- MUST support both `migrate up` and `migrate down` commands
+
 ---
 
 # 📐 SCHEMA DESIGN STANDARDS

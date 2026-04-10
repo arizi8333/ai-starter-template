@@ -1,0 +1,17 @@
+{
+  "enabled": true,
+  "name": "Auto Generate Swagger",
+  "description": "Setelah file Go handler diedit, otomatis jalankan swagger generation (swag init) untuk memastikan swagger docs selalu up-to-date.",
+  "version": "1",
+  "when": {
+    "type": "fileEdited",
+    "patterns": [
+      "**/handler/*.go",
+      "**/handler/**/*.go"
+    ]
+  },
+  "then": {
+    "type": "runCommand",
+    "command": "cd backend && swag init -g cmd/server/main.go -o docs/ 2>/dev/null || echo \"swag not installed or backend/ not found — skip swagger generation\""
+  }
+}

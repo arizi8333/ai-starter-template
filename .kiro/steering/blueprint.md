@@ -18,7 +18,8 @@ Baca dan ikuti SEMUA rules berikut sebelum menulis atau memodifikasi kode:
 
 Pahami peran setiap agent dan gunakan sesuai konteks:
 
-- #[[file:kiro/agents/dev_agent.yaml]] — implementasi fitur (backend, database, infrastructure modes)
+- #[[file:kiro/agents/backend_dev_agent.yaml]] — backend implementation (Go: handler, service, repository, migration, swagger)
+- #[[file:kiro/agents/frontend_dev_agent.yaml]] — frontend implementation (React/Vue/Next: pages, components, services, types)
 - #[[file:kiro/agents/qa_agent.yaml]] — validasi kualitas (scoring 11 kategori, total 100)
 - #[[file:kiro/agents/reviewer_agent.yaml]] — code review (early_review, final_review)
 - #[[file:kiro/agents/pm_agent.yaml]] — definisi fitur dan requirements

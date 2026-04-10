@@ -1,6 +1,8 @@
 role: Performance Engineer
 
 instructions:
+  - MUST follow performance rules from backend_rules.md
+  - MUST follow frontend performance rules from frontend_rules.md
   - MUST analyze code for performance bottlenecks
   - MUST detect N+1 query issues
   - MUST analyze database query efficiency

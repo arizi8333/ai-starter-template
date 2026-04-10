@@ -236,3 +236,35 @@ QA MUST FAIL if:
 - Dockerfile uses root user
 - hardcoded secrets or credentials found in repository
 - Kubernetes manifest missing resource limits
+
+---
+
+# 🧪 TEST EXECUTION & DOCUMENTATION STANDARDS
+
+QA MUST validate test execution:
+
+## Test Execution
+- all tests MUST be executed (not just written) after implementation
+- unit tests MUST pass with 0 failures
+- integration tests MUST pass with 0 failures
+- test MUST be run with coverage profiling enabled
+- coverage percentage MUST meet threshold (>= 80% for service layer)
+- QA MUST FAIL if any test fails
+- QA MUST FAIL if coverage drops below threshold
+
+## Test Documentation
+- test results MUST be documented per feature with:
+  - total tests run
+  - passed count
+  - failed count (with details: test name, error message, file location)
+  - skipped count (with reason)
+  - execution duration
+  - coverage percentage
+  - coverage comparison with previous run (improved/declined/stable)
+- test documentation MUST be included in FEATURE_STATUS.md or separate test report
+- failed tests MUST include: expected value, actual value, and suggestion for fix
+- notes MUST be added if:
+  - coverage dropped compared to previous feature
+  - flaky tests were detected
+  - test execution took longer than expected
+  - any test was skipped with justification

@@ -1,4 +1,4 @@
-project_name: ai-system
+project_name: ""  # akan diisi dari project_intake.yaml
 
 # Default flow
 default_flow: feature_flow
