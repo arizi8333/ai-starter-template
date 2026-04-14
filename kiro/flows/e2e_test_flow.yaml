@@ -1,0 +1,57 @@
+steps:
+  # 1. Gather test requirements from feature definition
+  - agent: pm_agent
+    mode: review
+    description: "Provide feature acceptance criteria and user journeys for E2E test design"
+
+  # 2. Get API contract and DB schema for test assertions
+  - agent: backend_dev_agent
+    mode: review
+    description: "Provide API endpoints, request/response schemas, and DB state expectations"
+
+  # 3. Get UI component selectors for frontend E2E
+  - agent: frontend_dev_agent
+    mode: review
+    condition: tech_stack.frontend.enabled == true
+    description: "Provide component selectors, page routes, and UI interaction patterns"
+
+  # 4. Get auth test scenarios
+  - agent: security_agent
+    description: "Provide auth flow test cases (valid/invalid tokens, role-based access, session management)"
+
+  # 5. Validate DB schema for state assertions
+  - agent: dba_agent
+    description: "Validate database state assertions and provide expected data patterns"
+
+  # 6. Design and execute E2E tests
+  - agent: e2e_test_agent
+    description: "Design test plan, write and execute E2E tests, capture results step-by-step"
+
+  # 7. Retry if tests fail
+  - loop:
+      condition: e2e_test_agent.status == "fail"
+      max_retry: 2
+      steps:
+        - agent: backend_dev_agent
+          description: "Fix backend issues found by E2E tests"
+        - agent: frontend_dev_agent
+          condition: tech_stack.frontend.enabled == true
+          description: "Fix frontend issues found by E2E tests"
+        - agent: e2e_test_agent
+          description: "Re-run failed E2E test scenarios"
+
+  # 8. Integrate results into QA scoring
+  - agent: qa_agent
+    description: "Integrate E2E test results into quality scoring"
+
+  # 9. Generate test documentation
+  - agent: techwriter_agent
+    description: "Format and publish E2E test reports"
+
+  # 10. Finalize
+  - agent: orchestrator_agent
+
+config:
+  report_directory: reports/e2e
+  screenshot_directory: reports/e2e/screenshots
+  max_test_duration: 300  # seconds per scenario

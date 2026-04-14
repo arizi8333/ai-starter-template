@@ -13,6 +13,7 @@ Baca dan ikuti SEMUA rules berikut sebelum menulis atau memodifikasi kode:
 - #[[file:kiro/rules/database_rules.md]] — aturan database (migration, schema, indexing, connection pooling, query optimization)
 - #[[file:kiro/rules/infra_rules.md]] — aturan infrastruktur (Docker, Kubernetes, CI/CD, secrets, monitoring, deployment)
 - #[[file:kiro/rules/qa_rules.md]] — aturan QA (scoring 11 kategori, fail conditions, feedback loop)
+- #[[file:kiro/rules/qa_planning_rules.md]] — aturan QA planning (testcase design, execution, reporting standards)
 
 ## Agents yang Tersedia
 
@@ -30,6 +31,8 @@ Pahami peran setiap agent dan gunakan sesuai konteks:
 - #[[file:kiro/agents/devops_agent.yaml]] — validasi infrastruktur (Docker, K8s, CI/CD, secrets)
 - #[[file:kiro/agents/security_agent.yaml]] — audit keamanan (backend, frontend, database, infra)
 - #[[file:kiro/agents/techwriter_agent.yaml]] — dokumentasi (README, FEATURE_STATUS, swagger)
+- #[[file:kiro/agents/e2e_test_agent.yaml]] — E2E testing (step-by-step per feature, screenshots, detailed reports)
+- #[[file:kiro/agents/qa_planning_agent.yaml]] — QA planning (testcase design, coverage analysis, testcase document generation)
 
 ## Flows yang Tersedia
 
@@ -41,6 +44,7 @@ Gunakan flow yang sesuai dengan jenis pekerjaan:
 - #[[file:kiro/flows/migration_flow.yaml]] — untuk perubahan database schema
 - #[[file:kiro/flows/deployment_flow.yaml]] — untuk deployment ke environment
 - #[[file:kiro/flows/security_audit_flow.yaml]] — untuk audit keamanan menyeluruh
+- #[[file:kiro/flows/e2e_test_flow.yaml]] — untuk end-to-end testing per feature dengan detail report
 
 ## Contracts dan Memory
 
@@ -70,3 +74,20 @@ Jika ada file `project_intake.yaml` di root project, baca file tersebut sebagai 
 6. Migration HARUS reversible (up dan down function)
 7. TIDAK BOLEH hardcode credentials atau secrets
 8. TIDAK BOLEH commit file besar, generated files, atau sensitive data ke repository
+
+## MCP Tools
+
+3 MCP servers tersedia (konfigurasi: `.kiro/settings/mcp.json`):
+
+- Playwright — browser-based E2E testing
+  - Tools: browser_navigate, browser_screenshot, browser_click, browser_type, browser_wait, browser_evaluate
+  - Digunakan oleh: e2e_test_agent untuk UI testing dengan real browser
+
+- PostgreSQL — direct database access untuk verifikasi data
+  - Tools: query, list_tables, describe_table
+  - Digunakan oleh: dba_agent (schema validation), e2e_test_agent (DB state verification)
+  - NOTE: disabled by default — enable dan isi POSTGRES_CONNECTION_STRING di mcp.json
+
+- Fetch — HTTP client untuk API testing
+  - Tools: fetch (GET/POST/PUT/DELETE ke URL)
+  - Digunakan oleh: e2e_test_agent (API endpoint testing), security_agent (vulnerability testing)

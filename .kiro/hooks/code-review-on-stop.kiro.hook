@@ -8,6 +8,6 @@
   },
   "then": {
     "type": "askAgent",
-    "prompt": "Baca kiro/agents/reviewer_agent.yaml. Review semua file yang baru dibuat/diubah di session ini. Validasi terhadap: backend_rules.md, database_rules.md, infra_rules.md, frontend_rules.md, global_rules.md. Cek arsitektur, transaction manager usage, swagger annotations, migration quality, git hygiene. Laporkan issues dengan severity (HIGH/MEDIUM/LOW) dan suggestion perbaikan."
+    "prompt": "Baca kiro/agents/reviewer_agent.yaml. Review semua file yang baru dibuat/diubah di session ini. Validasi terhadap: backend_rules.md, database_rules.md, infra_rules.md, frontend_rules.md, global_rules.md. Cek arsitektur, transaction manager usage, swagger annotations, migration quality, git hygiene. Laporkan issues dengan severity (HIGH/MEDIUM/LOW) dan suggestion perbaikan. File yang akan ditulis adalah dokumen review report (markdown). Isinya hanya analisis kode, checklist compliance, dan rekomendasi perbaikan. Tidak mengandung hardcoded passwords, API keys, tokens, secrets, credentials, atau connection strings. Code snippets yang ada hanya contoh pattern/suggestion, bukan real credentials. Lokasi save di reports/ Untuk formatnya sesuaikan dengan request task yang dikerjakan serta tanggal"
   }
 }
