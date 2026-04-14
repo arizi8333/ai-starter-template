@@ -1,0 +1,13 @@
+{
+  "enabled": true,
+  "name": "TechWriter Update Documentation",
+  "description": "Setelah agent selesai bekerja, otomatis jalankan TechWriter Agent untuk update README.md, FEATURE_STATUS.md, swagger docs, dan validasi dokumentasi.",
+  "version": "1",
+  "when": {
+    "type": "agentStop"
+  },
+  "then": {
+    "type": "askAgent",
+    "prompt": "Baca kiro/agents/techwriter_agent.yaml. Lakukan tugas berikut:\n\n1. UPDATE README.md:\n   - Pastikan project description masih akurat\n   - Pastikan structure documentation mencerminkan file/folder terbaru\n   - Pastikan semua agents, flows, rules terdokumentasi\n   - Pastikan usage instructions lengkap\n   - Pastikan environment variables terdokumentasi\n\n2. UPDATE FEATURE_STATUS.md:\n   - Update status fitur yang baru diimplementasikan (done/in-progress/planned)\n   - Tambahkan changelog entry dengan tanggal hari ini\n   - Sertakan test results summary jika ada (dari reports/)\n\n3. VALIDASI SWAGGER:\n   - Pastikan semua handler function punya swagger annotations\n   - Pastikan swagger bisa di-generate tanpa error\n   - Jika ada endpoint baru tanpa swagger, laporkan sebagai HIGH issue\n\n4. VALIDASI CROSS-REFERENCES:\n   - Pastikan tidak ada broken links di dokumentasi\n   - Pastikan terminology konsisten di semua file\n   - Pastikan naming conventions diikuti\n\n5. VALIDASI MAKEFILE:\n   - Pastikan Makefile punya targets: build, test, swagger, migrate, run\n   - Jika ada target yang missing, laporkan\n\n6. Laporkan issues yang ditemukan dengan severity (HIGH/MEDIUM/LOW) dan suggestion."
+  }
+}

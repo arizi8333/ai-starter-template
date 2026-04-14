@@ -1,0 +1,40 @@
+{
+  "mcpServers": {
+    "playwright": {
+      "command": "npx",
+      "args": ["@anthropic-ai/mcp-playwright@latest"],
+      "env": {},
+      "disabled": false,
+      "autoApprove": [
+        "browser_navigate",
+        "browser_screenshot",
+        "browser_click",
+        "browser_type",
+        "browser_wait",
+        "browser_evaluate"
+      ]
+    },
+    "postgres": {
+      "command": "npx",
+      "args": ["-y", "@anthropic-ai/mcp-postgres@latest"],
+      "env": {
+        "POSTGRES_CONNECTION_STRING": ""
+      },
+      "disabled": true,
+      "autoApprove": [
+        "query",
+        "list_tables",
+        "describe_table"
+      ]
+    },
+    "fetch": {
+      "command": "uvx",
+      "args": ["mcp-server-fetch"],
+      "env": {},
+      "disabled": false,
+      "autoApprove": [
+        "fetch"
+      ]
+    }
+  }
+}

@@ -1,202 +1,149 @@
 # AI-Driven Starter Blueprint — Enterprise-Grade (Kiro)
 
-An enterprise-grade rulebook for AI engineering systems. This blueprint provides a comprehensive, declarative configuration that orchestrates AI agents through structured flows — covering backend, frontend, database, infrastructure, security, and deployment.
+An enterprise-grade rulebook for AI engineering systems. This blueprint provides a comprehensive, declarative configuration that orchestrates AI agents through structured flows — covering backend, frontend, database, infrastructure, security, QA testing, and deployment.
 
 No application code is generated. The blueprint acts as a "rulebook" consumed by AI agents to enforce standards, validate quality, and automate workflows across the entire software lifecycle.
 
 ## Project Structure
 
 ```
-ai-starter-template/
+project-root/
+├── .kiro/
+│   ├── steering/blueprint.md           # Auto-loaded by Kiro — references all rules/agents/flows
+│   ├── hooks/                          # 11 automation hooks
+│   ├── specs/                          # Spec documents
+│   └── settings/mcp.json              # MCP server configs (Playwright, PostgreSQL, Fetch)
+├── kiro/
+│   ├── agents/                         # 14 agent definitions
+│   ├── flows/                          # 7 flow definitions
+│   ├── rules/                          # 7 rule files
+│   ├── memory/                         # Contracts & history
+│   └── config.yaml                     # Central configuration
+├── templates/
+│   ├── project_intake.yaml             # Project intake template
+│   └── GUIDE.md                        # Usage guide
+├── reports/                            # Auto-generated (gitignored)
+│   ├── backend/                        # Coverage, test results, benchmarks
+│   ├── frontend/                       # Frontend test results
+│   ├── testcases/{YYYYMMDD}/           # Testcase documents (MD + HTML)
+│   └── e2e/{YYYYMMDD}/                # Execution reports, screenshots, captures
+├── backend/                            # Backend code (Go)
+├── frontend/                           # Frontend code (React/Vue/Next)
+├── .gitignore
 ├── README.md
 ├── FEATURE_STATUS.md
-├── ai_driven_starter_monorepo_blueprint_go_fe_kiro.md
-└── kiro/
-    ├── config.yaml
-    ├── agents/
-    │   ├── backend_dev_agent.yaml
-    │   ├── frontend_dev_agent.yaml
-    │   ├── qa_agent.yaml
-    │   ├── reviewer_agent.yaml
-    │   ├── pm_agent.yaml
-    │   ├── planner_agent.yaml
-    │   ├── optimizer_agent.yaml
-    │   ├── orchestrator_agent.yaml
-    │   ├── dba_agent.yaml
-    │   ├── devops_agent.yaml
-    │   ├── security_agent.yaml
-    │   └── techwriter_agent.yaml
-    ├── flows/
-    │   ├── feature_flow.yaml
-    │   ├── hotfix_flow.yaml
-    │   ├── refactor_flow.yaml
-    │   ├── migration_flow.yaml
-    │   ├── deployment_flow.yaml
-    │   └── security_audit_flow.yaml
-    ├── memory/
-    │   ├── api_contract.yaml
-    │   ├── infra_contract.yaml
-    │   ├── execution_history.json
-    │   └── quality_history.json
-    └── rules/
-        ├── global_rules.md
-        ├── backend_rules.md
-        ├── frontend_rules.md
-        ├── qa_rules.md
-        ├── database_rules.md
-        └── infra_rules.md
+└── docker-compose.yml
 ```
 
 ## How to Use
 
-1. **Choose a flow** — Pick the flow that matches your task (feature, hotfix, refactor, migration, deployment, or security audit).
-2. **System runs agents in order** — The flow executes agents sequentially, each performing its specialized role.
-3. **QA scores quality** — The QA agent scores the output across 11 categories (total 100 points, threshold 80).
-4. **Feedback loop on failure** — If QA or a specialist agent fails, the system retries automatically (up to `max_retry` from config) by looping back to fix only the failed checks.
+1. Copy this template to a new project folder
+2. Fill in `project_intake.yaml` with your business requirements
+3. Open in Kiro — steering auto-loads all rules and agents
+4. Ask Kiro: "Baca project_intake.yaml dan setup project ini"
+5. Kiro designs architecture, builds features, runs QA, generates reports
 
-## Agents
-
-The blueprint includes 12 specialized agents:
+## Agents (14)
 
 | Agent | Role | Description |
 |-------|------|-------------|
-| `backend_dev_agent` | Backend Engineer | Implements backend features (Go: handler, service, repository, migration, swagger). Supports `feature`, `refactor`, `hotfix`, `database`, `infrastructure` modes. |
-| `frontend_dev_agent` | Frontend Engineer | Implements frontend features (React/Vue/Next: pages, components, services, types). Supports `feature`, `refactor`, `hotfix` modes. Skipped if frontend not enabled. |
-| `qa_agent` | QA Engineer | Validates quality across 11 scoring categories. Integrates results from specialist agents. Fails on critical violations. |
-| `reviewer_agent` | Code Reviewer | Reviews code against all rules (global, backend, frontend, database, infra) and git hygiene. Supports `early_review` and `final_review` modes. |
-| `pm_agent` | Product Manager | Defines feature specs including database, infrastructure, frontend, and security requirements. |
-| `planner_agent` | System Architect | Analyzes requirements and plans implementation approach, including database and infrastructure tasks. |
-| `optimizer_agent` | Performance Optimizer | Analyzes performance across backend, frontend, database, infrastructure, and caching layers. |
-| `orchestrator_agent` | Orchestrator | Controls flow execution, evaluates specialist agent results, manages retry and logging. |
-| `dba_agent` | Database Administrator | Validates migrations, schema design, indexing, connection pooling, and query optimization against `database_rules.md`. |
-| `devops_agent` | DevOps Engineer | Validates Dockerfiles, Kubernetes manifests, CI/CD pipelines, IaC, and secret management against `infra_rules.md`. |
-| `security_agent` | Security Auditor | Audits backend, frontend, database, and infrastructure security. Performs dependency vulnerability scanning. |
-| `techwriter_agent` | Technical Writer | Generates and updates README, FEATURE_STATUS, swagger docs, and API documentation. Integrated into all flows. |
+| `backend_dev_agent` | Backend Engineer | Go: handler, service, repository, migration, swagger. TransactionManager interface. |
+| `frontend_dev_agent` | Frontend Engineer | React/Vue/Next: pages, components, services, types. Skipped if frontend disabled. |
+| `qa_agent` | QA Engineer | Scores quality across 11 categories (total 100). Integrates specialist agent results. |
+| `qa_planning_agent` | QA Planning Engineer | Creates testcase documents per feature (API, UI, integration, performance, security, DB). |
+| `e2e_test_agent` | E2E Test Engineer | Executes testcases step-by-step with captures. Uses Playwright MCP for UI tests. |
+| `reviewer_agent` | Code Reviewer | Reviews against all rules. Supports early_review and final_review modes. |
+| `pm_agent` | Product Manager | Defines feature specs with database, infra, frontend, security requirements. |
+| `planner_agent` | System Architect | Plans architecture and task breakdown including database and infrastructure tasks. |
+| `optimizer_agent` | Performance Optimizer | Analyzes performance across backend, frontend, database, infra, caching. |
+| `orchestrator_agent` | Orchestrator | Controls flow execution, manages retry, logs to execution_history. |
+| `dba_agent` | Database Administrator | Validates migrations, schema, indexing, connection pooling. Uses PostgreSQL MCP. |
+| `devops_agent` | DevOps Engineer | Validates Dockerfiles, K8s manifests, CI/CD, IaC, secrets. |
+| `security_agent` | Security Auditor | Audits backend, frontend, database, infra security. Dependency scanning. |
+| `techwriter_agent` | Technical Writer | Updates README, FEATURE_STATUS, swagger docs. Validates documentation. |
 
-## Flows
-
-6 flows orchestrate agents for different scenarios:
+## Flows (7)
 
 | Flow | Steps | Use Case |
 |------|-------|----------|
-| `feature_flow` | pm → planner → reviewer → backend_dev → swagger → frontend_dev → qa → optimizer → techwriter → orchestrator | New feature development |
-| `hotfix_flow` | reviewer → backend_dev → frontend_dev → qa → techwriter → orchestrator | Urgent bug fixes |
-| `refactor_flow` | planner → backend_dev → frontend_dev → qa → reviewer → optimizer → techwriter → orchestrator | Code refactoring |
-| `migration_flow` | planner → backend_dev → dba → reviewer → qa → (retry loop) → techwriter → orchestrator | Database schema changes |
-| `deployment_flow` | devops → security → qa → (retry loop) → techwriter → orchestrator | Infrastructure deployment |
-| `security_audit_flow` | security → dba → devops → reviewer → techwriter → orchestrator | Comprehensive security audit |
+| `feature_flow` | pm → planner → reviewer → backend_dev → swagger → frontend_dev → qa → optimizer → techwriter → orchestrator | New feature |
+| `hotfix_flow` | reviewer → backend_dev → frontend_dev → qa → techwriter → orchestrator | Bug fix |
+| `refactor_flow` | planner → backend_dev → frontend_dev → qa → reviewer → optimizer → techwriter → orchestrator | Refactoring |
+| `migration_flow` | planner → backend_dev → dba → reviewer → qa → (retry) → techwriter → orchestrator | DB changes |
+| `deployment_flow` | devops → security → qa → (retry) → techwriter → orchestrator | Deploy |
+| `security_audit_flow` | security → dba → devops → reviewer → techwriter → orchestrator | Security audit |
+| `e2e_test_flow` | pm → backend_dev → frontend_dev → security → dba → e2e_test → (retry) → qa → techwriter → orchestrator | E2E testing |
 
-Flows with retry loops automatically re-run failed agents up to `max_retry` (default: 3) from `config.yaml`.
-
-## Rules
-
-6 rule files define enterprise-grade standards:
+## Rules (7)
 
 | File | Scope |
 |------|-------|
-| `global_rules.md` | Cross-cutting rules applicable to all agents and domains, including git hygiene (gitignore, commit format, branch naming) |
-| `backend_rules.md` | Backend development standards (API design, error handling, testing, observability) |
-| `frontend_rules.md` | Frontend standards including enterprise enhancements (micro-frontend, design system, accessibility, i18n, SSR/SSG, bundle optimization, error boundaries, feature flags, E2E and visual regression testing) |
-| `qa_rules.md` | QA validation checklists and scoring rules for all 11 categories including database, infrastructure, and security audit |
-| `database_rules.md` | Database standards (migration management, schema design, indexing, connection pooling, backup/recovery, data integrity, query optimization, security, seed data, multi-environment config) |
-| `infra_rules.md` | Infrastructure and DevOps standards (CI/CD, Docker, Kubernetes, environment management, secrets, IaC, monitoring, disaster recovery, network security, load balancing, deployment strategies) |
+| `global_rules.md` | Architecture, git hygiene, PR automation, code quality |
+| `backend_rules.md` | Clean architecture, TransactionManager, resilience patterns, testing standards, logging, swagger, background workers |
+| `frontend_rules.md` | Accessibility, design system, i18n, SSR/SSG, bundle optimization, error boundaries, feature flags |
+| `database_rules.md` | Migration (SQL + Go), schema design, indexing, connection pooling, backup, query optimization |
+| `infra_rules.md` | CI/CD, Docker, Kubernetes, secrets, IaC, monitoring, disaster recovery, deployment strategies |
+| `qa_rules.md` | 11-category scoring (total 100), fail conditions, test execution & documentation standards |
+| `qa_planning_rules.md` | Testcase design, naming convention (TC-ID), coverage rules, step-by-step capture, report format (MD + HTML + JSON) |
 
-All rules are strictly enforced. Violations cause the responsible agent to fail, which triggers the QA feedback loop.
+## Hooks (11)
 
-## Config (`config.yaml`)
+| Hook | Trigger | Action |
+|------|---------|--------|
+| `qa-validation-post-task` | After task | QA scoring + save to quality_history.json |
+| `code-review-on-stop` | Agent stop | Review against all rules |
+| `performance-check-on-edit` | Go file edited | Check N+1, SELECT *, pagination |
+| `security-check-pre-write` | Before file write | Check hardcoded secrets |
+| `save-execution-history` | Agent stop | Save to execution_history.json |
+| `swagger-auto-generate` | Handler edited | Run swag init |
+| `auto-run-backend-tests` | Test file edited | Run go test + coverage to reports/backend/ |
+| `auto-run-benchmark-tests` | Test file edited | Run go bench to reports/backend/ |
+| `generate-testcases` | After task | QA Planning Agent creates testcase document |
+| `e2e-test-post-feature` | Testcase created | E2E Test Agent runs testcases step-by-step |
+| `techwriter-update-docs` | Agent stop | Update README, FEATURE_STATUS, swagger |
 
-The central configuration file controls the entire system:
+## MCP Servers (3)
 
-| Section | Description |
-|---------|-------------|
-| `project_name` | Project identifier |
-| `default_flow` | Default flow to execute (e.g., `feature_flow`) |
-| `quality` | QA threshold (80), scoring toggle, auto-reject, and scoring weights for all 11 categories |
-| `retry` | Max retry attempts (3), retry strategy (`fix_only_failed_checks`) |
-| `features` | Feature toggles (quality tracking, feedback loop, PR automation, observability, security checks) |
-| `qa` | QA behavior (strict mode, fail fast, require all categories) |
-| `pr` | PR automation settings (auto-create, require pass, include summary/score/checklist) |
-| `logging` | Log level and execution history toggle |
-| `memory` | Paths to quality and execution history files |
-| `environment` | Current mode (development / staging / sandbox / production) |
-| `database` | Connection pool config (max_open, max_idle, max_lifetime), migration tool, backup schedule and retention |
-| `infrastructure` | Deployment strategy, container registry, Kubernetes namespaces per environment, IaC tool |
-| `security` | Audit schedule, vulnerability scan toggle, severity threshold for auto-reject |
-| `deployment` | Environment list with approval and rollback flags per environment |
+| Server | Purpose | Used By |
+|--------|---------|---------|
+| Playwright | Browser-based UI testing | e2e_test_agent |
+| PostgreSQL | Direct DB queries for verification | dba_agent, e2e_test_agent |
+| Fetch | HTTP API testing | e2e_test_agent, security_agent |
 
-## Memory System
+Config: `.kiro/settings/mcp.json`. PostgreSQL disabled by default — enable and set connection string per project.
 
-The memory layer stores contracts and history for cross-agent coordination:
+## QA Scoring (11 categories, total 100)
 
-| File | Purpose |
-|------|---------|
-| `api_contract.yaml` | Defines API service contracts and database schemas (tables, columns, indexes, relations). Consumed by dev, PM, and QA agents. |
-| `infra_contract.yaml` | Defines infrastructure contracts — environment resources (CPU, memory, replicas), deployment targets (registry, cluster, namespaces), and monitoring/alerting config. |
-| `execution_history.json` | Tracks execution history of agent runs for audit and debugging. |
-| `quality_history.json` | Tracks QA scoring history over time for trend analysis. |
+| Category | Weight |
+|----------|--------|
+| Architecture | 15 |
+| Transaction | 10 |
+| Testing | 15 |
+| Observability | 10 |
+| APM | 5 |
+| Security | 10 |
+| Performance | 10 |
+| Code Quality | 5 |
+| Database | 10 |
+| Infrastructure | 5 |
+| Security Audit | 5 |
 
-## QA Scoring System
+Pass threshold: 80. Auto-fail on: migration without down, Dockerfile root user, hardcoded secrets, K8s without resource limits, tests not passing, coverage below 80%.
 
-Quality is scored across 11 categories totaling 100 points. The pass threshold is **80**.
+## Report Structure
 
-| Category | Weight | What It Validates |
-|----------|--------|-------------------|
-| Architecture | 15 | System design, separation of concerns, patterns |
-| Transaction | 10 | Transaction management, data consistency |
-| Testing | 15 | Unit tests, integration tests, coverage |
-| Observability | 10 | Logging, tracing, metrics |
-| APM | 5 | Application performance monitoring |
-| Security | 10 | Auth, input validation, encryption |
-| Performance | 10 | Response times, resource usage, optimization |
-| Code Quality | 5 | Clean code, naming, documentation |
-| Database | 10 | Migration compliance, schema standards, query optimization, connection pooling |
-| Infrastructure | 5 | Dockerfile compliance, K8s manifests, CI/CD pipeline, secret management |
-| Security Audit | 5 | Vulnerability scan, dependency check, credential exposure |
+```
+reports/
+├── backend/                            # Go test + coverage + benchmark
+├── testcases/{YYYYMMDD}/              # Testcase docs (MD + HTML) per date
+└── e2e/{YYYYMMDD}/                    # Execution reports per date
+    ├── {feature}-report.md
+    ├── {feature}-report.html
+    ├── {feature}-results.json
+    ├── screenshots/{feature}/          # UI captures per step
+    └── captures/{feature}/             # API/DB/perf captures per step
+```
 
-**Fail conditions** (automatic QA failure):
-- Migration without a reversible `down` function
-- Dockerfile running as root user
-- Hardcoded secrets or credentials in repository
-- Kubernetes manifest missing resource limits
+## Getting Started
 
-## Deployment Strategies
-
-The blueprint supports three deployment strategies, configurable in `config.yaml` under `infrastructure.deployment_strategy`:
-
-| Strategy | Description |
-|----------|-------------|
-| **Blue-Green** | Two identical environments. Traffic switches from blue (current) to green (new) for zero-downtime releases. Instant rollback by switching back. |
-| **Canary** | Gradual rollout to a small subset of users first. Monitor metrics, then expand to full rollout. Minimizes blast radius. |
-| **Rolling** | Incrementally replaces old instances with new ones. No extra environment needed. Automatic rollback on failure. |
-
-All strategies require:
-- Rollback enabled per environment (configurable in `deployment.environments`)
-- Production deployments require approval (`approval_required: true`)
-- Health checks (liveness, readiness, startup probes) must pass before traffic routing
-
-## Contributing
-
-To extend this blueprint:
-
-### Adding a New Rule File
-1. Create a Markdown file in `kiro/rules/` following the format of existing rule files.
-2. Reference the new rule file in relevant agent `instructions`.
-3. Update `qa_rules.md` to include a validation checklist for the new domain.
-
-### Adding a New Agent
-1. Create a YAML file in `kiro/agents/` with: `role`, `instructions`, `checks`, `rules`, and `output_schema`.
-2. Reference the relevant rule files in the agent's instructions.
-3. Add the agent to the appropriate flow(s) in `kiro/flows/`.
-4. Update this README to document the new agent.
-
-### Adding a New Flow
-1. Create a YAML file in `kiro/flows/` defining the `steps` (agent sequence).
-2. Include retry loops where quality gates are needed.
-3. Always end with `techwriter_agent` → `orchestrator_agent`.
-4. Update this README to document the new flow.
-
-### Updating Scoring
-1. Update weights in `config.yaml` under `quality.scoring` — total must equal 100.
-2. Update `qa_rules.md` scoring section to match.
-3. Update `qa_agent.yaml` scoring section to match.
-4. Update the blueprint main document scoring table to match.
+See `templates/GUIDE.md` for step-by-step instructions.

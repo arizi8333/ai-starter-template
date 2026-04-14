@@ -42,7 +42,9 @@
   │   └── Dockerfile
   ├── reports/ (gitignored — auto-generated test reports)
   │   ├── backend/ (coverage.out, coverage.html, coverage-summary.txt, test-results.json)
-  │   └── frontend/ (test results, coverage)
+  │   ├── frontend/ (test results, coverage)
+  │   ├── testcases/ ({feature-name}-testcases.md — testcase documents)
+  │   └── e2e/ (execution reports, screenshots/, captures/)
   ├── docker-compose.yml
   ├── kiro/ (blueprint)
   ├── README.md

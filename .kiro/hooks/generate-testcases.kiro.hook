@@ -1,0 +1,13 @@
+{
+  "enabled": true,
+  "name": "Generate Testcases After Feature",
+  "description": "Setelah task selesai, otomatis jalankan QA Planning Agent untuk membuat testcase document lengkap per feature. Output ke reports/testcases/.",
+  "version": "1",
+  "when": {
+    "type": "postTaskExecution"
+  },
+  "then": {
+    "type": "askAgent",
+    "prompt": "Baca kiro/agents/qa_planning_agent.yaml dan kiro/rules/qa_planning_rules.md. Untuk fitur yang baru diimplementasikan:\n\n1. Analisis fitur: baca acceptance criteria, API endpoints, UI pages, database schema, security requirements dari file yang baru dibuat/diubah.\n\n2. Desain testcases lengkap per test type:\n   - API Test: untuk setiap endpoint (happy path, invalid input 400, unauthorized 401, forbidden 403, not found 404, server error 500)\n   - UI Test: untuk setiap halaman (happy path user journey, form validation, error state, empty state) — jika frontend enabled\n   - Integration Test: cross-feature interactions\n   - Performance Test: untuk critical endpoints (response time, throughput)\n   - Security Test: auth flows, injection attempts, XSS, CSRF\n   - Database Test: migration up/down, data integrity, query performance\n\n3. Setiap testcase HARUS punya:\n   - TC-ID (format: TC-{FEATURE}-{TYPE}-{NUMBER})\n   - Title, Type, Priority (critical/high/medium/low)\n   - Preconditions\n   - Numbered steps dengan action dan expected result\n   - Test data\n   - Expected result\n\n4. Generate testcase document ke folder tanggal: reports/testcases/{YYYYMMDD}/{feature-name}-testcases.md (gunakan tanggal hari ini)\n   DAN juga generate HTML version: reports/testcases/{YYYYMMDD}/{feature-name}-testcases.html\n   HTML HARUS punya: styled tables, color-coded priority (critical=red, high=orange, medium=yellow, low=green), table of contents.\n   Format MD: Markdown dengan table per test type, setiap testcase detail dengan steps.\n   PENTING: buat folder {YYYYMMDD}/ agar setiap run punya folder sendiri.\n\n5. Pastikan coverage minimum terpenuhi sesuai qa_planning_rules.md."
+  }
+}
