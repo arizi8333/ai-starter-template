@@ -2,7 +2,7 @@
   "mcpServers": {
     "playwright": {
       "command": "npx",
-      "args": ["@anthropic-ai/mcp-playwright@latest"],
+      "args": ["@playwright/mcp@latest"],
       "env": {},
       "disabled": false,
       "autoApprove": [
@@ -11,7 +11,12 @@
         "browser_click",
         "browser_type",
         "browser_wait",
-        "browser_evaluate"
+        "browser_evaluate",
+        "browser_snapshot",
+        "browser_tab_list",
+        "browser_tab_new",
+        "browser_tab_select",
+        "browser_tab_close"
       ]
     },
     "postgres": {
