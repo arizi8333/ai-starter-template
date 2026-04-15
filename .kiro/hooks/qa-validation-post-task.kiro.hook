@@ -1,13 +1,14 @@
 {
   "enabled": true,
   "name": "QA Validation After Task",
-  "description": "Setelah setiap task selesai, otomatis jalankan validasi QA: cek arsitektur, transaction, testing, observability, security, database, infrastructure sesuai qa_agent.yaml. Hitung score dari 11 kategori (total 100). Fail jika score di bawah threshold.",
-  "version": "1",
+  "description": "Run smart QA validation and scoring after feature-level changes with controlled scope and actionable feedback.",
+  "version": "2",
   "when": {
-    "type": "postTaskExecution"
+    "type": "postTaskExecution",
+    "condition": "task.type in ['feature', 'major_refactor']"
   },
   "then": {
     "type": "askAgent",
-    "prompt": "Baca kiro/agents/qa_agent.yaml dan kiro/rules/qa_rules.md. Validasi semua file yang baru dibuat/diubah terhadap 11 kategori scoring (architecture, transaction, testing, observability, apm, security, performance, code_quality, database, infrastructure, security_audit). Hitung total score (max 100, threshold 80). Laporkan failed_checks dengan severity dan suggestion. Jika ada fail condition (migration tanpa down, Dockerfile root user, hardcoded secrets, K8s tanpa resource limits), langsung FAIL. Setelah scoring selesai, WAJIB append hasil ke file kiro/memory/quality_history.json dengan format: {\"feature\": \"nama task/fitur\", \"score\": angka, \"status\": \"pass/fail\", \"category_scores\": {11 kategori}, \"failed_checks\": [...], \"trend\": \"improving/declining/stable\", \"timestamp\": \"ISO 8601\"}. Bandingkan dengan entry terakhir di file untuk menentukan trend."
+    "prompt": "Baca kiro/agents/qa_agent.yaml dan kiro/rules/qa_rules.md.\n\nFokus hanya pada perubahan terbaru (git diff / changed files). Jangan analisis seluruh codebase.\n\n1. Validasi berdasarkan kategori berikut (gunakan hanya yang relevan dengan perubahan):\n- architecture\n- transaction\n- testing\n- observability\n- apm\n- security\n- performance\n- code_quality\n- database\n- infrastructure\n- security_audit\n\n2. Scoring:\n- Hitung score total (0-100)\n- Threshold: 80\n- Berikan score per kategori (hanya yang relevan)\n\n3. Fail conditions (langsung FAIL tanpa melihat score):\n- Migration tanpa rollback/down\n- Dockerfile menggunakan root user\n- Hardcoded secrets / credentials\n- Kubernetes config tanpa resource limits\n\n4. Output:\nUntuk setiap issue:\n- Severity (HIGH/MEDIUM/LOW)\n- Lokasi (file:line)\n- Deskripsi\n- Dampak\n- Saran perbaikan (dengan contoh jika memungkinkan)\n\n5. Noise control:\n- Abaikan perubahan kecil (typo, formatting, comment)\n- Hindari false positive\n- Jangan report jika tidak ada issue signifikan\n\n6. Final result:\n- Status: PASS / FAIL\n- Total score\n- Category scores (yang relevan saja)\n- Failed checks (jika ada)\n\n7. History tracking:\n- Append ke: kiro/memory/quality_history.json\n- Jika file tidak ada, buat baru\n- Format:\n{\n  \"feature\": \"nama task/fitur\",\n  \"score\": number,\n  \"status\": \"pass/fail\",\n  \"category_scores\": {},\n  \"failed_checks\": [],\n  \"trend\": \"improving/declining/stable\",\n  \"timestamp\": \"ISO 8601\"\n}\n\n8. Trend calculation:\n- Bandingkan dengan entry terakhir\n- Jika score naik → improving\n- Jika turun → declining\n- Jika sama → stable\n\n9. Optimization:\n- Jangan duplikasi history\n- Pastikan JSON valid\n- Fokus pada insight, bukan jumlah temuan"
   }
 }

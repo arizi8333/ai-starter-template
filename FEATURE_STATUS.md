@@ -90,3 +90,5 @@
 | 2026-04-14 | Updated all reports to date-based folders (reports/{YYYYMMDD}/) |
 | 2026-04-14 | Added HTML format for all reports (MD + HTML + JSON) |
 | 2026-04-15 | Updated e2e-test-post-feature hook v2: MCP Fetch + Playwright integration, per-step screenshots, HTML report with collapsible sections, unit test referencing |
+| 2026-04-15 | Updated e2e-test-post-feature hook v3: real Playwright browser execution — direct mcp_playwright_browser_* tool calls, per-field screenshots, concrete examples (Login/Create forms), error path testing |
+| 2026-04-15 | Updated e2e-test-post-feature hook v4: full-stack testing — backend API via Fetch MCP + frontend UI via Playwright MCP + integration cross-checks, CRUD examples (Create/Edit/Delete), health check |

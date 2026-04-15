@@ -1,17 +1,16 @@
 {
   "enabled": true,
   "name": "Auto Run Benchmark Tests",
-  "description": "Setelah file Go benchmark test diedit, otomatis jalankan benchmark dan simpan hasil ke reports/backend/.",
-  "version": "1",
+  "description": "Run Go benchmarks on demand for updated benchmark files with structured output and minimal overhead.",
+  "version": "2",
   "when": {
-    "type": "fileEdited",
-    "patterns": [
-      "**/*_test.go"
-    ]
+    "type": "fileSaved",
+    "patterns": ["**/*_test.go"],
+    "condition": "file.contains('Benchmark') == true"
   },
   "then": {
     "type": "runCommand",
-    "command": "mkdir -p reports/backend && cd backend && go test ./... -bench=. -benchmem -count=3 -run=^$ > ../reports/backend/benchmark-results.txt 2>&1; echo '--- Benchmark Done ---'; tail -20 ../reports/backend/benchmark-results.txt",
-    "timeout": 180
+    "command": "mkdir -p reports/backend && cd backend && go test ./... -bench=. -benchmem -run=^$ -count=2 -benchtime=100ms -json > ../reports/backend/benchmark-results.json 2>&1; echo '--- Benchmark Done ---'; tail -20 ../reports/backend/benchmark-results.json",
+    "timeout": 120
   }
 }

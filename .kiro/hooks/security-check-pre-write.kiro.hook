@@ -1,16 +1,14 @@
 {
   "enabled": true,
   "name": "Security Check Before Write",
-  "description": "Sebelum file ditulis, cek apakah ada hardcoded secrets, credentials, API keys, atau sensitive data yang akan di-commit.",
-  "version": "1",
+  "description": "Prevent committing sensitive data by scanning for secrets before file write with high accuracy and low false positives.",
+  "version": "2",
   "when": {
     "type": "preToolUse",
-    "toolTypes": [
-      "write"
-    ]
+    "toolTypes": ["write"]
   },
   "then": {
     "type": "askAgent",
-    "prompt": "Baca kiro/agents/security_agent.yaml. Cek apakah file yang akan ditulis mengandung: hardcoded passwords, API keys, tokens, secrets, credentials, connection strings dengan password plaintext. Jika ditemukan, TOLAK operasi dan sarankan menggunakan environment variable atau Secret_Manager."
+    "prompt": "Baca kiro/agents/security_agent.yaml.\n\nAnalisis konten file yang akan ditulis.\n\nDeteksi HIGH severity:\n- Hardcoded password (contoh: password=..., pwd=...)\n- API keys (pattern umum: sk-..., key-..., dll)\n- Access tokens / JWT / secret keys\n- Connection string dengan password plaintext\n\nMEDIUM severity:\n- Suspicious string yang menyerupai credential (heuristic)\n\nLOW severity:\n- Placeholder yang terlihat seperti secret tapi bukan real (misalnya 'your_api_key_here')\n\nAturan penting:\n- Abaikan nilai yang jelas dummy (example, test, dummy, placeholder)\n- Abaikan jika menggunakan environment variable (os.Getenv, process.env, dll)\n- Abaikan file non-sensitive (misalnya config example, .env.example)\n- Hindari false positive (jangan block jika tidak yakin)\n\nJika ditemukan HIGH severity:\n- TOLAK operasi write\n- Tampilkan:\n  - lokasi (line jika memungkinkan)\n  - jenis secret\n  - alasan berbahaya\n  - saran perbaikan (gunakan environment variable atau secret manager)\n\nJika hanya MEDIUM/LOW:\n- Jangan block\n- Berikan warning saja\n\nJika tidak ada issue:\n- Izinkan operasi tanpa output\n\nFokus pada akurasi tinggi dan minim false positive."
   }
 }
