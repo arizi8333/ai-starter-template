@@ -99,7 +99,7 @@ project-root/
 | `auto-run-backend-tests` | Test file edited | Run go test + coverage to reports/backend/ |
 | `auto-run-benchmark-tests` | Test file edited | Run go bench to reports/backend/ |
 | `generate-testcases` | After task | QA Planning Agent creates testcase document |
-| `e2e-test-post-feature` | Testcase created | E2E Test Agent runs testcases step-by-step |
+| `e2e-test-post-feature` | Testcase created | E2E Test Agent runs testcases with MCP Fetch + Playwright, per-step screenshots, generates MD + HTML + JSON reports |
 | `techwriter-update-docs` | Agent stop | Update README, FEATURE_STATUS, swagger |
 
 ## MCP Servers (3)

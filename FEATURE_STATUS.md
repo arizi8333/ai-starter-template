@@ -89,3 +89,4 @@
 | 2026-04-14 | Added techwriter-update-docs hook, auto-run-benchmark-tests hook |
 | 2026-04-14 | Updated all reports to date-based folders (reports/{YYYYMMDD}/) |
 | 2026-04-14 | Added HTML format for all reports (MD + HTML + JSON) |
+| 2026-04-15 | Updated e2e-test-post-feature hook v2: MCP Fetch + Playwright integration, per-step screenshots, HTML report with collapsible sections, unit test referencing |
