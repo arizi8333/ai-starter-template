@@ -1,16 +1,14 @@
 {
   "enabled": true,
-  "name": "Performance Check on Edit",
-  "description": "Setelah file Go diedit, otomatis cek apakah ada pelanggaran performance rules: SELECT *, N+1 query, missing pagination, missing index hints.",
-  "version": "1",
+  "name": "Performance Check on Save",
+  "description": "Analyze recent Go code changes for performance anti-patterns with minimal noise and actionable feedback.",
+  "version": "2",
   "when": {
-    "type": "fileEdited",
-    "patterns": [
-      "**/*.go"
-    ]
+    "type": "fileSaved",
+    "patterns": ["**/*.go"]
   },
   "then": {
     "type": "askAgent",
-    "prompt": "Baca kiro/agents/optimizer_agent.yaml. Cek file yang baru diedit untuk: SELECT * usage, N+1 query patterns, missing pagination, connection pool misconfiguration, slow query patterns. Jika ditemukan issue HIGH priority, laporkan dengan lokasi dan suggestion."
+    "prompt": "Baca kiro/agents/optimizer_agent.yaml.\n\nAnalisis HANYA perubahan terbaru (git diff / edited lines) pada file Go yang disimpan.\nJangan analisis seluruh file kecuali benar-benar diperlukan.\n\nDeteksi issue berikut:\n\nHIGH:\n- Penggunaan SELECT * pada query database\n- Query list tanpa LIMIT / pagination\n\nMEDIUM:\n- Potensi N+1 query (heuristic, jika ada loop + query berulang)\n- Connection pool misconfiguration (misalnya tidak set MaxOpenConns / MaxIdleConns)\n\nLOW:\n- Pola query yang berpotensi lambat (heuristic, optional)\n\nAturan tambahan:\n- Abaikan baris dengan komentar: `perf-ignore`\n- Hindari false positive (jangan flag jika konteks tidak jelas)\n- Fokus hanya pada kode yang relevan dengan database / query\n\nUntuk setiap issue, tampilkan:\n- Severity (HIGH/MEDIUM/LOW)\n- Lokasi (file:line)\n- Deskripsi singkat\n- Dampak (kenapa ini masalah)\n- Contoh perbaikan kode (jika memungkinkan)\n\nJika tidak ada issue HIGH atau MEDIUM, jangan tampilkan apa-apa."
   }
 }

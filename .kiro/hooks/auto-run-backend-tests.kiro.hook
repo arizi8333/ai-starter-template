@@ -1,17 +1,16 @@
 {
   "enabled": true,
   "name": "Auto Run Backend Tests",
-  "description": "Setelah file Go test diedit atau dibuat, otomatis jalankan test suite dan generate coverage report.",
-  "version": "1",
+  "description": "Run Go tests with coverage for updated test files with fast feedback and structured output.",
+  "version": "2",
   "when": {
-    "type": "fileEdited",
-    "patterns": [
-      "**/*_test.go"
-    ]
+    "type": "fileSaved",
+    "patterns": ["**/*_test.go"],
+    "condition": "file.size < 2000"
   },
   "then": {
     "type": "runCommand",
-    "command": "mkdir -p reports/backend && cd backend && go test ./... -v -count=1 -coverprofile=../reports/backend/coverage.out -json > ../reports/backend/test-results.json 2>&1; go tool cover -func=../reports/backend/coverage.out > ../reports/backend/coverage-summary.txt 2>/dev/null; go tool cover -html=../reports/backend/coverage.out -o ../reports/backend/coverage.html 2>/dev/null; echo '--- Test Summary ---'; tail -5 ../reports/backend/coverage-summary.txt; echo '--- Done ---'",
-    "timeout": 120
+    "command": "mkdir -p reports/backend && cd backend && go test ./... -count=1 -coverprofile=../reports/backend/coverage.out -json > ../reports/backend/test-results.json 2>&1; go tool cover -func=../reports/backend/coverage.out > ../reports/backend/coverage-summary.txt 2>/dev/null; go tool cover -html=../reports/backend/coverage.out -o ../reports/backend/coverage.html 2>/dev/null; echo '--- Coverage Summary ---'; tail -5 ../reports/backend/coverage-summary.txt; echo '--- Done ---'",
+    "timeout": 90
   }
 }
