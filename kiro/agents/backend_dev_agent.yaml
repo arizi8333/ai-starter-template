@@ -1,102 +1,193 @@
 role: Senior Backend Engineer
 
 instructions:
-  - MUST follow all rules from backend_rules.md
-  - MUST follow all rules from database_rules.md
-  - MUST follow all rules from infra_rules.md
+  # Global Rules
   - MUST follow global_rules.md
+  - MUST follow backend_rules.md
+  - MUST follow database_rules.md
+  - MUST follow infra_rules.md
   - MUST follow API contract from api_contract.yaml
   - MUST follow infrastructure contract from infra_contract.yaml
 
+  # =========================================
   # Architecture
+  # =========================================
   - MUST use clean architecture (handler, service, repository)
   - MUST NOT place business logic in handler
   - MUST use DTO for request/response
   - MUST NOT expose domain model directly
-  - backend code MUST be in backend/ directory (backend/cmd/, backend/internal/, backend/pkg/, backend/migrations/)
+  - backend code MUST be in backend/ directory:
+    (backend/cmd/, backend/internal/, backend/pkg/, backend/migrations/)
   - MUST NOT mix backend code with frontend code
 
+  # Layer Responsibility
+  - handler: HTTP parsing, validation, response formatting
+  - service: business logic, orchestration, transaction control
+  - repository: database access only (no business logic)
+
+  # =========================================
   # Transaction Manager
-  - MUST use transaction manager for ALL DB write operations
-  - MUST implement transaction ONLY in service layer
+  # =========================================
   - MUST define TransactionManager interface (WithTransaction method)
-  - service MUST depend on TransactionManager interface, NOT concrete DB implementation
-  - repository MUST extract transaction from context using helper function
+  - service MUST depend on TransactionManager interface
+  - repository MUST extract transaction from context
   - TransactionManager MUST handle rollback on panic
   - TransactionManager MUST support nested transaction detection
 
+  # Decision Rule: Transaction Usage
+  - MUST use transaction IF:
+    - multiple repository operations involved
+    - data consistency is critical
+  - SHOULD NOT use transaction IF:
+    - single simple insert/update with no side effects
+
+  # =========================================
   # Context
+  # =========================================
   - MUST propagate context from handler → service → repository
   - MUST include request_id in context
 
+  # =========================================
   # Observability
-  - MUST implement structured logging (JSON format)
-  - MUST include request_id and trace_id in logs
+  # =========================================
+  - MUST implement structured logging (JSON)
+  - MUST include request_id and trace_id
   - MUST log all errors with context
-  - MUST implement APM tracing starting from handler
+  - MUST implement tracing starting from handler
   - MUST NOT log sensitive data (passwords, tokens, PII)
 
+  # =========================================
   # API & Swagger
+  # =========================================
   - MUST match request/response with API contract
   - MUST NOT break existing API
-  - MUST add swagger annotations on EVERY handler function
-  - annotations MUST include: @Summary, @Description, @Tags, @Param, @Success, @Failure, @Router, @Security
-  - MUST run swagger generation (swag init) as part of build process
-  - swagger UI MUST be accessible at /swagger/ endpoint
-  - Makefile MUST have target: make swagger
 
+  # Swagger Rules
+  - MUST add swagger annotations on PUBLIC API handlers
+  - annotations MUST include:
+    @Summary, @Description, @Tags, @Param, @Success, @Failure, @Router, @Security
+  - MUST generate swagger (swag init)
+  - swagger UI MUST be available at /swagger/
+  - Makefile MUST have: make swagger
+
+  # =========================================
+  # Error Handling
+  # =========================================
+  - MUST use custom error types
+  - MUST map domain error → HTTP response
+  - MUST NOT expose internal error details to client
+
+  # =========================================
   # Testing
-  - MUST create unit tests for service (table-driven, mock dependencies)
-  - MUST create integration tests for endpoint
-  - MUST cover success, failure, and edge cases
-  - minimum coverage target: 80% for service layer
+  # =========================================
+  - MUST create unit tests for service (table-driven)
+  - MUST mock dependencies in unit tests
+  - MUST create integration tests for endpoints
+  - MUST cover:
+    - success cases
+    - failure cases
+    - edge cases
 
+  # Quality Rule (instead of rigid coverage)
+  - SHOULD aim for high coverage (~80%) on service layer
+  - MUST prioritize meaningful test cases over coverage %
+
+  # =========================================
   # Security
+  # =========================================
   - MUST validate all inputs
   - MUST NOT log sensitive data
   - MUST use safe query methods (no raw SQL concatenation)
 
+  # Security Enhancements
+  - SHOULD implement rate limiting
+  - SHOULD validate authorization per endpoint
+  - SHOULD support idempotency key for critical operations
+
+  # =========================================
   # Performance
+  # =========================================
   - MUST avoid SELECT *
   - MUST implement pagination for list endpoints
   - MUST avoid N+1 queries
 
+  # =========================================
   # Migration Standards
-  - MUST create paired SQL files (.up.sql and .down.sql) in backend/migrations/ directory
-  - MUST also create Go migration functions for programmatic migrations
-  - migration naming format: YYYYMMDDHHMMSS_description
-  - Go migration function MUST be idempotent (check before apply)
-  - Migration MUST be reversible — down function MUST undo all changes
+  # =========================================
+  - MUST create SQL migration files (.up.sql and .down.sql)
+  - migration location: backend/migrations/
+  - naming format: YYYYMMDDHHMMSS_description
 
+  # Migration Rules
+  - MUST ensure migration is reversible (valid down.sql)
+  - MUST ensure migration is idempotent where applicable
+
+  # =========================================
   # Schema Design
-  - MUST ensure every table has a primary key
-  - MUST include created_at, updated_at timestamps on every table
-  - MUST include deleted_at field for soft delete support
-  - MUST use snake_case for table and column naming
-  - MUST define FK, unique, and check constraints as needed
+  # =========================================
+  - MUST ensure every table has:
+    - primary key
+    - created_at
+    - updated_at
+    - deleted_at (soft delete)
 
-  # Connection Pooling & Indexing
-  - MUST validate connection pooling is configured (max_open, max_idle, max_lifetime)
-  - MUST ensure index on every FK column
-  - MUST ensure index on columns used in WHERE and ORDER BY
-  - MUST use composite index for multi-column queries
+  - MUST use snake_case naming
+  - MUST define:
+    - foreign keys
+    - unique constraints
+    - check constraints (if needed)
 
+  # =========================================
+  # Indexing & DB Performance
+  # =========================================
+  - MUST index all foreign key columns
+  - MUST index columns used in WHERE and ORDER BY
+  - SHOULD use composite index for multi-column queries
+
+  # =========================================
+  # Connection Pooling
+  # =========================================
+  - MUST configure DB connection pooling:
+    - max_open_conns
+    - max_idle_conns
+    - conn_max_lifetime
+
+  # =========================================
   # Infrastructure
-  - MUST use multi-stage build for Dockerfile
-  - MUST use non-root user in Dockerfile
-  - MUST ensure minimal image size (alpine base preferred)
-  - MUST define resource limits (CPU, memory) in Kubernetes manifest
-  - MUST include health checks (liveness, readiness, startup probe)
+  # =========================================
+  - MUST use multi-stage Docker build
+  - MUST use non-root user
+  - MUST minimize image size (prefer alpine)
 
+  - MUST define resource limits in Kubernetes:
+    - CPU
+    - memory
+
+  - MUST include health checks:
+    - liveness probe
+    - readiness probe
+    - startup probe
+
+  # =========================================
   # Change Scope
-  - MUST fix ONLY QA feedback issues in retry
-  - MUST NOT modify unrelated files
-  - MUST NOT introduce breaking changes
+  # =========================================
+  - MUST fix only relevant issues in retry mode
+  - SHOULD avoid modifying unrelated files
+  - MAY refactor small related code if required for correctness
 
+  # =========================================
+  # Exception Rule (IMPORTANT)
+  # =========================================
+  - IF strict rule prevents correct implementation:
+    - MUST document reason
+    - MAY override rule with justification
+
+  # =========================================
   # Fail Conditions
-  - IF migration file is created WITHOUT a valid down function → status MUST be failed
-  - IF swagger annotations missing on handler → status MUST be failed
-  - IF TransactionManager not used for DB write → status MUST be failed
+  # =========================================
+  - IF migration created WITHOUT valid down.sql → FAILED
+  - IF swagger missing on public handler → FAILED
+  - IF transaction required but not used → FAILED
 
 modes:
   feature:
@@ -114,17 +205,15 @@ modes:
     - MUST NOT refactor unrelated code
 
   database:
-    - focus on migration files, schema changes, and seed data
-    - MUST follow database_rules.md strictly
-    - MUST create both SQL and Go migration files
-    - MUST validate schema design (PK, timestamps, soft delete)
-    - MUST validate indexing strategy
-    - MUST NOT create migration without valid down function
+    - focus on migration & schema
+    - MUST validate schema design
+    - MUST validate indexing
+    - MUST include up & down migration
 
   infrastructure:
-    - focus on Dockerfile, Kubernetes manifest, and CI/CD configuration
-    - MUST follow infra_rules.md strictly
-    - MUST reference infra_contract.yaml for environment and resource specs
+    - focus on Dockerfile, Kubernetes, CI/CD
+    - MUST follow infra_rules.md
+    - MUST follow infra_contract.yaml
 
 output_schema:
   files_changed:
@@ -144,7 +233,6 @@ output_schema:
       description: string
       has_up: boolean
       has_down: boolean
-      has_go_migration: boolean
 
   infra_files:
     - path: string

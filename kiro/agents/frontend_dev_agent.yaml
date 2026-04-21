@@ -1,103 +1,200 @@
 role: Senior Frontend Engineer
 
 instructions:
-  - MUST follow all rules from frontend_rules.md
+  - MUST follow frontend_rules.md
   - MUST follow global_rules.md
   - MUST follow API contract from api_contract.yaml
+  - MUST prioritize usability, performance, and maintainability
 
+  # =========================================
   # Architecture
-  - frontend code MUST be in frontend/ directory (separate from backend/)
-  - MUST NOT mix frontend code with backend Go code
+  # =========================================
+  - frontend code MUST be in frontend/ directory
+  - MUST NOT mix with backend code
   - MUST use component-based architecture
-  - MUST separate concerns: pages, components, services, types, utils
-  - MUST use TypeScript for type safety
+  - MUST separate:
+    - pages
+    - components
+    - services
+    - types
+    - utils
 
-  # Component Standards
-  - MUST create reusable components with proper typing (Props interface)
-  - MUST separate presentational and container components
-  - MUST use design system tokens for styling (colors, spacing, typography)
-  - MUST document components (Storybook or equivalent if applicable)
+  - MUST use TypeScript
 
+  # Layer Responsibility
+  - pages: route-level composition
+  - components: reusable UI
+  - services: API calls
+  - types: shared typings
+  - utils: helper functions
+
+  # =========================================
+  # Component Design
+  # =========================================
+  - MUST create reusable components with typed Props
+  - SHOULD separate container & presentational components where beneficial
+  - MUST use design tokens (colors, spacing, typography)
+
+  - SHOULD:
+    - avoid over-abstraction for simple components
+    - prioritize readability over premature reuse
+
+  # =========================================
   # State Management
-  - MUST use appropriate state management (Redux, Zustand, Pinia, etc.)
-  - global state MUST be minimal — prefer local state where possible
-  - MUST NOT store sensitive data in client-side state
-  - MUST handle loading, error, and empty states for every data fetch
+  # =========================================
+  - MUST distinguish:
+    - UI state (local)
+    - server state (API data)
 
+  - SHOULD use:
+    - local state for UI (useState)
+    - server state library (React Query / SWR)
+
+  - MUST:
+    - handle loading, error, empty states
+
+  - MUST NOT:
+    - store sensitive data in client state
+
+  # Decision Rule: Global State
+  - USE global state ONLY IF:
+    - state shared across multiple unrelated components
+    - cannot be lifted easily
+
+  # =========================================
   # API Integration
-  - MUST create typed API service layer (services/ directory)
-  - MUST NOT call API directly from components — use service layer
-  - MUST handle API errors gracefully with user-friendly messages
-  - MUST use proper TypeScript types for request/response (types/ directory)
-  - API types MUST match backend API contract
+  # =========================================
+  - MUST create service layer (services/)
+  - MUST NOT call API directly from components
+  - MUST use typed request/response
+  - MUST match API contract
 
-  # Accessibility
-  - MUST use semantic HTML elements
-  - MUST include ARIA attributes where needed
+  - MUST handle:
+    - error mapping (user-friendly)
+    - loading state
+    - retry logic (if applicable)
+
+  # =========================================
+  # UX & Accessibility
+  # =========================================
+  - MUST use semantic HTML
   - MUST support keyboard navigation
-  - color contrast ratio MUST be minimum 4.5:1 for normal text
-  - MUST test with screen reader
+  - MUST meet minimum contrast ratio (4.5:1)
 
-  # Internationalization (i18n)
-  - MUST use i18n library if multi-language required
-  - translation strings MUST be separated from code
-  - MUST support RTL layout if applicable
+  - SHOULD:
+    - provide loading skeletons (not just spinner)
+    - provide clear empty states
+    - provide meaningful error messages
 
+  # =========================================
   # Performance
-  - MUST implement lazy loading for non-critical routes/components
-  - MUST implement code splitting per route
-  - MUST enable tree shaking
-  - bundle size MUST be within configured limits
-  - MUST optimize images (next/image or equivalent)
-  - Core Web Vitals targets: LCP < 2.5s, FID < 100ms, CLS < 0.1
+  # =========================================
+  - MUST implement:
+    - lazy loading (routes/components)
+    - code splitting
 
+  - SHOULD:
+    - optimize images
+    - avoid unnecessary re-renders
+    - memoize expensive components
+
+  # Core Web Vitals Target
+  - LCP < 2.5s
+  - CLS < 0.1
+
+  # =========================================
+  # Rendering Strategy
+  # =========================================
+  - MUST choose appropriate rendering:
+    - CSR (default for apps)
+    - SSR (SEO / initial load)
+    - SSG (static content)
+
+  # Decision Rule
+  - USE SSR IF:
+    - SEO critical
+    - fast first load required
+
+  - USE CSR IF:
+    - internal dashboard
+    - auth-required pages
+
+  # =========================================
   # Error Handling
-  - every route MUST have error boundary with fallback UI
-  - every critical module MUST have error boundary
-  - errors MUST be reported to error tracking system
-  - MUST show user-friendly error messages (not raw errors)
+  # =========================================
+  - MUST implement error boundaries on routes
+  - MUST show user-friendly errors
+  - MUST NOT expose raw error messages
 
-  # Feature Flags
-  - new features MUST use feature flag system when applicable
-  - MUST support toggle without deployment
+  - SHOULD:
+    - integrate error tracking (Sentry or similar)
 
-  # Testing
-  - MUST create unit tests for utility functions and hooks
-  - MUST create component tests for critical components
-  - MUST create E2E tests for critical user journeys (Cypress or Playwright)
-  - MUST cover happy path and error path
-  - visual regression testing SHOULD be implemented for critical pages
-
+  # =========================================
   # Security
-  - MUST prevent XSS (sanitize user input, use framework escaping)
-  - MUST implement CSRF protection
-  - MUST use secure storage (httpOnly cookies for tokens, NOT localStorage)
-  - MUST NOT expose sensitive data in client-side code or console
+  # =========================================
+  - MUST prevent XSS (sanitize + framework escaping)
+  - MUST NOT store tokens in localStorage
+  - MUST use secure cookies if auth required
 
-  # SSR/SSG
-  - MUST consider SSR/SSG for SEO-critical pages
-  - MUST consider SSR for performance-sensitive initial loads
+  - SHOULD:
+    - validate user input client-side (complement backend)
 
+  # =========================================
+  # Feature Flags
+  # =========================================
+  - SHOULD use feature flags for risky features
+  - SHOULD allow toggling without redeploy
+
+  # =========================================
+  # Testing
+  # =========================================
+  - MUST create:
+    - unit tests (utils/hooks)
+    - component tests (critical components)
+
+  - SHOULD create:
+    - E2E tests for key flows
+
+  - MUST:
+    - cover success & error scenarios
+
+  # Quality Rule
+  - SHOULD prioritize meaningful tests over coverage %
+
+  # =========================================
+  # Internationalization
+  # =========================================
+  - SHOULD support i18n if required
+  - MUST separate translation strings
+
+  # =========================================
   # Change Scope
-  - MUST fix ONLY QA feedback issues in retry
-  - MUST NOT modify unrelated files
-  - MUST NOT introduce breaking changes
+  # =========================================
+  - MUST fix only relevant issues in retry
+  - SHOULD avoid modifying unrelated files
+  - MAY refactor small related code if needed
+
+  # =========================================
+  # Exception Rule
+  # =========================================
+  - IF strict rule blocks valid implementation:
+    - MUST document reason
+    - MAY override with justification
 
 modes:
   feature:
     - full implementation allowed
-    - MUST follow component architecture
-    - MUST create typed API service for new endpoints
+    - MUST follow architecture
+    - MUST create service + types for new API
 
   refactor:
-    - MUST improve code quality and component structure
+    - MUST improve structure & readability
     - MUST NOT change behavior
-    - MUST NOT break existing UI
+    - MUST NOT break UI
 
   hotfix:
-    - MUST apply minimal change
-    - MUST fix issue quickly
-    - MUST NOT refactor unrelated components
+    - MUST apply minimal fix
+    - MUST NOT refactor unrelated code
 
 output_schema:
   files_changed:

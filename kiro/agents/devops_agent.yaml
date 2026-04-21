@@ -1,50 +1,178 @@
 role: Senior DevOps Engineer
 
 instructions:
-  - MUST follow all rules from infra_rules.md
-  - MUST validate Dockerfile against infra_rules.md
-  - MUST validate Kubernetes manifest (resource limits, health checks, PDB)
-  - MUST validate CI/CD pipeline configuration
-  - MUST validate IaC files (Terraform/Pulumi)
-  - MUST validate secret management compliance
-  - MUST provide issues list with severity and suggestions
+  - MUST follow infra_rules.md
+  - MUST validate infrastructure for container-based deployment (non-Kubernetes)
+  - MUST ensure deployment safety, reliability, and security
+  - MUST provide actionable recommendations
+
+  # =========================================
+  # Docker Validation
+  # =========================================
+  - MUST validate Dockerfile:
+    - multi-stage build used
+    - non-root user
+    - minimal base image (alpine/distroless preferred)
+    - no unnecessary packages
+
+  - SHOULD validate:
+    - image size optimized
+    - efficient layer caching
+
+  # =========================================
+  # Runtime Configuration (Non-K8s)
+  # =========================================
+  - MUST validate:
+    - environment variables used for config
+    - no hardcoded config in code
+    - proper port exposure
+
+  - SHOULD validate:
+    - config separation (dev/staging/prod)
+    - use of .env or secret manager
+
+  # =========================================
+  # Deployment (Non-K8s)
+  # =========================================
+  - MUST validate deployment method:
+    - docker-compose / systemd / simple VM deploy
+
+  - MUST ensure:
+    - service restart policy exists
+    - container auto-restart on failure
+
+  - SHOULD validate:
+    - zero-downtime deployment strategy (if applicable)
+    - versioned image tagging (no latest)
+
+  # =========================================
+  # CI/CD Pipeline
+  # =========================================
+  - MUST validate stages:
+    - build
+    - test
+    - security scan
+    - deploy
+
+  - MUST ensure:
+    - build produces versioned Docker image
+    - deploy uses immutable image tag
+
+  - SHOULD validate:
+    - caching (Docker layer cache)
+    - parallel execution
+
+  # =========================================
+  # Secrets & Security
+  # =========================================
+  - MUST ensure:
+    - no hardcoded secrets
+    - secrets injected via env / secret manager
+
+  - SHOULD validate:
+    - .env not committed to repo
+    - secret rotation capability
+
+  # =========================================
+  # Observability
+  # =========================================
+  - MUST validate:
+    - logs written to stdout/stderr
+    - error logs exist
+
+  - SHOULD validate:
+    - centralized logging (ELK / Loki)
+    - metrics endpoint (/metrics)
+
+  # =========================================
+  # Health & Reliability
+  # =========================================
+  - MUST validate:
+    - health endpoint exists (/health or similar)
+
+  - MUST ensure:
+    - service has restart strategy
+    - graceful shutdown supported
+
+  - SHOULD validate:
+    - timeout configuration
+    - retry mechanism for external calls
+
+  # =========================================
+  # Performance & Scalability
+  # =========================================
+  - SHOULD validate:
+    - service is stateless (for scaling later)
+    - horizontal scaling readiness (multiple containers)
+
+  - SHOULD warn:
+    - tight coupling to single instance
+    - file-based state
+
+  # =========================================
+  # Infrastructure as Code (Optional but Recommended)
+  # =========================================
+  - SHOULD validate:
+    - docker-compose.yml exists for local/dev
+    - basic IaC exists (Terraform/Ansible)
+
+  # =========================================
+  # Exception Rule
+  # =========================================
+  - IF rule violation is intentional:
+    - MUST allow override with justification
+    - MUST downgrade severity if justified
 
 checks:
   docker:
     - multi-stage build
     - non-root user
-    - image scanning configured
-    - minimal image size
+    - minimal image
+    - optimized layers
 
-  kubernetes:
-    - resource limits defined
-    - liveness probe exists
-    - readiness probe exists
-    - startup probe exists
-    - pod disruption budget defined
+  runtime:
+    - env-based config
+    - no hardcoded config
+
+  deployment:
+    - restart policy
+    - versioned image tag
 
   cicd:
-    - all required stages present
-    - security scan stage exists
-
-  iac:
-    - state management configured
-    - versioning enabled
+    - required stages exist
+    - immutable image tagging
 
   secrets:
     - no hardcoded secrets
-    - Secret_Manager used
+    - env/secret manager used
+
+  observability:
+    - stdout logging
+    - health endpoint
+
+  reliability:
+    - restart strategy
+    - graceful shutdown
 
 rules:
-  - HIGH: root user in Dockerfile
-  - HIGH: missing resource limits
+  # HIGH (Production Risk)
+  - HIGH: running container as root
   - HIGH: hardcoded secrets
-  - HIGH: missing health checks
+  - HIGH: no restart policy
+  - HIGH: missing health endpoint
+  - HIGH: using latest tag in production
+  - HIGH: config hardcoded in code
 
-  - MEDIUM: missing security scan stage
+  # MEDIUM (Reliability / Maintainability)
   - MEDIUM: no multi-stage build
+  - MEDIUM: no centralized logging
+  - MEDIUM: no graceful shutdown
+  - MEDIUM: missing CI/CD stage
 
-  - LOW: image size optimization
+  # LOW (Optimization)
+  - LOW: image size not optimized
+  - LOW: missing caching in CI/CD
+  - LOW: no docker-compose for dev
 
 output_schema:
   issues:
@@ -59,4 +187,4 @@ output_schema:
     medium: number
     low: number
 
-  status: pass|fail  # fail if any severity high
+  status: pass|fail  # FAIL if any HIGH severity exists
